@@ -29,5 +29,19 @@
       "amount": 150.0,
       "category": "Utilities"
     }
+  ],
+  "payments": [
+    {
+      "date": "2025-03-06",
+      "description": "Groceries",
+      "category": "Food",
+      "amount": 150.75
+    },
+    {
+      "date": "2025-03-05",
+      "description": "Gas",
+      "category": "Transportation",
+      "amount": 45.50
+    }
   ]
 }

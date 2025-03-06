@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
+from datetime import datetime
 import json
 import os
 import logging
@@ -34,11 +35,17 @@ app.add_middleware(
     allow_headers=["Content-Type", "Accept"],
 )
 
-# Pydantic models for data validation
+# Data Models
 class Bill(BaseModel):
     name: str = Field(..., description="Name of the bill")
     amount: float = Field(..., description="Amount of the bill")
     category: str = Field(..., description="Category of the bill (e.g., Housing, Transportation)")
+
+class Payment(BaseModel):
+    date: str = Field(..., description="Date of the payment")
+    description: str = Field(..., description="Description of the payment")
+    category: str = Field(..., description="Category of the payment")
+    amount: float = Field(..., description="Amount of the payment")
 
 class Income(BaseModel):
     biweekly: float = Field(..., description="Biweekly income amount")
@@ -47,22 +54,41 @@ class Income(BaseModel):
 class FinancialData(BaseModel):
     income: Income
     bills: List[Bill]
+    payments: List[Payment] = Field(default_factory=list)
 
+# File path for data storage
+DATA_FILE = "data/financial_data.json"
+
+# Ensure data directory exists
+os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
+
+# Helper functions
+def load_data() -> FinancialData:
+    try:
+        with open(DATA_FILE, 'r') as f:
+            data = json.load(f)
+            return FinancialData(**data)
+    except FileNotFoundError:
+        return FinancialData(
+            income=Income(biweekly=0, monthly=0),
+            bills=[],
+            payments=[]
+        )
+
+def save_data(data: FinancialData):
+    with open(DATA_FILE, 'w') as f:
+        json.dump(data.dict(), f, indent=2)
+
+# API Routes
 @app.get("/api/finances", response_model=FinancialData, tags=["Financial Data"])
 async def get_financial_data():
     """
     Retrieve the current financial data including income and bills
     """
     try:
-        with open('data/financial_data.json', 'r') as f:
-            raw_data = json.load(f)
-            logger.info("Financial data loaded successfully")
-            logger.debug("Loaded data: %s", raw_data)
-            data = FinancialData(**raw_data)
-            return data
-    except FileNotFoundError:
-        logger.error("Financial data file not found")
-        raise HTTPException(status_code=404, detail="Financial data not found")
+        logger.info("Financial data loaded successfully")
+        logger.debug("Loaded data: %s", load_data().dict())
+        return load_data()
     except Exception as e:
         logger.error("Error loading financial data: %s", str(e))
         raise HTTPException(status_code=500, detail="Error loading financial data")
@@ -73,13 +99,7 @@ async def update_financial_data(data: FinancialData):
     Update the financial data with new income or bill information
     """
     try:
-        # Ensure data directory exists
-        os.makedirs('data', exist_ok=True)
-        
-        # Write the data to the file
-        with open('data/financial_data.json', 'w') as f:
-            json.dump(data.dict(), f, indent=2)
-        
+        save_data(data)
         logger.info("Financial data updated successfully")
         logger.debug("Updated data: %s", data.dict())
         return data

@@ -3,109 +3,287 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baker Family Finances - Cyberpunk Edition</title>
+    <title>Baker Family Finances</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body class="dark-mode">
-    <div class="theme-toggle">
-        <button id="themeToggle">
-            <span class="toggle-icon">🌓</span>
-        </button>
-    </div>
+    <!-- Mobile Menu Toggle -->
+    <button id="menuToggle" class="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
 
-    <div class="container">
-        <header class="glitch-header">
-            <h1 data-text="Baker Family Finances">Baker Family Finances</h1>
-        </header>
+    <!-- Theme Toggle -->
+    <button id="themeToggle" class="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </button>
 
-        <div class="income-card floating-card">
-            <div class="card-content">
-                <h2>Income Overview</h2>
-                <div class="income-details">
-                    <div class="income-item">
-                        <span>Biweekly:</span>
-                        <div class="editable-amount">
-                            <span class="amount" id="biweeklyIncome">$27,779.75</span>
-                            <button class="edit-button" onclick="editIncome('biweekly')">✏️</button>
+    <!-- Side Navigation -->
+    <nav class="side-nav">
+        <div class="nav-header">
+            <div class="nav-logo"></div>
+            <h2>Baker Finances</h2>
+        </div>
+        <ul class="nav-links">
+            <li class="nav-item active">
+                <a href="#dashboard">
+                    <i class="fas fa-chart-line"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#payments">
+                    <i class="fas fa-credit-card"></i>
+                    Payments
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#bills">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    Bills
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#settings">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Page -->
+        <div id="dashboard" class="page active">
+            <div class="page-header">
+                <h1>Dashboard Overview</h1>
+                <div class="date-display"></div>
+            </div>
+
+            <div class="grid-container">
+                <!-- Income Summary -->
+                <div class="floating-card">
+                    <div class="card-content">
+                        <div class="card-header">
+                            <h2>Income Summary</h2>
+                            <button class="edit-button" onclick="editIncome()">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        <div class="income-details">
+                            <div class="income-item">
+                                <span>Biweekly</span>
+                                <span id="biweeklyIncome" class="amount">$0.00</span>
+                            </div>
+                            <div class="income-item">
+                                <span>Monthly</span>
+                                <span id="monthlyIncome" class="amount">$0.00</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="income-item">
-                        <span>Monthly:</span>
-                        <div class="editable-amount">
-                            <span class="amount" id="monthlyIncome">$55,559.50</span>
-                            <button class="edit-button" onclick="editIncome('monthly')">✏️</button>
+                </div>
+
+                <!-- Bills Summary -->
+                <div class="floating-card">
+                    <div class="card-content">
+                        <div class="card-header">
+                            <h2>Bills Summary</h2>
+                            <button class="action-button" onclick="openModal()">
+                                <i class="fas fa-plus"></i>
+                                Add Bill
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Amount</th>
+                                        <th>Category</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="billsTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="bills-progress">
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-text">0% of Monthly Income</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Payments -->
+                <div class="floating-card">
+                    <div class="card-content">
+                        <div class="card-header">
+                            <h2>Monthly Payments</h2>
+                            <button class="action-button" id="addPaymentBtn">
+                                <i class="fas fa-plus"></i>
+                                Add Payment
+                            </button>
+                        </div>
+                        <div class="payment-stats">
+                            <div class="stat-item">
+                                <span>Total Payments</span>
+                                <span id="totalPayments" class="amount">$0.00</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>Remaining Budget</span>
+                                <span id="remainingBudget" class="amount">$0.00</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bills-section floating-card">
-            <div class="card-content">
-                <h2>Monthly Bills</h2>
-                <div class="bills-table-container">
-                    <table id="billsTable">
-                        <thead>
-                            <tr>
-                                <th>Bill</th>
-                                <th>Amount</th>
-                                <th>Category</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="billsTableBody">
-                            <!-- Populated by JavaScript -->
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td>Total</td>
-                                <td id="totalBills" colspan="3"></td>
-                            </tr>
-                        </tfoot>
-                    </table>
+        <!-- Payments Page -->
+        <div id="payments" class="page">
+            <div class="page-header">
+                <h1>Payment History</h1>
+                <button class="action-button" id="addPaymentBtn2">
+                    <i class="fas fa-plus"></i>
+                    Add Payment
+                </button>
+            </div>
+            <div class="floating-card">
+                <div class="card-content">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentsTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="add-bill-section floating-card">
+        <!-- Bills Page -->
+        <div id="bills" class="page">
+            <div class="page-header">
+                <h1>Manage Bills</h1>
+                <button class="action-button" onclick="openModal()">
+                    <i class="fas fa-plus"></i>
+                    Add Bill
+                </button>
+            </div>
+            <div class="floating-card">
+                <div class="card-content">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Amount</th>
+                                    <th>Category</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="billsTableBody2"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings" class="page">
+            <div class="page-header">
+                <h1>Settings</h1>
+            </div>
+            <div class="floating-card">
+                <div class="card-content">
+                    <h2>Theme Preferences</h2>
+                    <p>Toggle between light and dark mode using the theme button in the top right corner.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Bill Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content floating-card">
             <div class="card-content">
                 <h2>Add New Bill</h2>
-                <form id="addBillForm">
+                <form id="billForm">
                     <div class="form-group">
-                        <input type="text" id="billName" placeholder="Bill Name" required>
+                        <label for="billName">Bill Name</label>
+                        <input type="text" id="billName" required>
                     </div>
                     <div class="form-group">
-                        <input type="number" id="billAmount" placeholder="Amount" step="0.01" required>
+                        <label for="billAmount">Amount</label>
+                        <input type="number" id="billAmount" step="0.01" required>
                     </div>
                     <div class="form-group">
+                        <label for="billCategory">Category</label>
                         <select id="billCategory" required>
-                            <option value="">Select Category</option>
                             <option value="Housing">Housing</option>
-                            <option value="Transportation">Transportation</option>
                             <option value="Utilities">Utilities</option>
+                            <option value="Transportation">Transportation</option>
                             <option value="Insurance">Insurance</option>
+                            <option value="Entertainment">Entertainment</option>
                             <option value="Other">Other</option>
                         </select>
                     </div>
-                    <button type="submit" class="cyber-button">Add Bill</button>
+                    <div class="button-group">
+                        <button type="submit" class="action-button">Save Bill</button>
+                        <button type="button" class="cancel-button" onclick="closeModal()">Cancel</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <div id="editModal" class="modal">
+    <!-- Add Payment Modal -->
+    <div id="paymentModal" class="modal">
         <div class="modal-content floating-card">
-            <h2>Edit Value</h2>
-            <form id="editForm">
-                <div class="form-group">
-                    <input type="number" id="editAmount" step="0.01" required>
-                </div>
-                <div class="button-group">
-                    <button type="submit" class="cyber-button">Save</button>
-                    <button type="button" class="cyber-button cancel" onclick="closeModal()">Cancel</button>
-                </div>
-            </form>
+            <div class="card-content">
+                <h2>Add New Payment</h2>
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <label for="paymentDate">Date</label>
+                        <input type="date" id="paymentDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentDescription">Description</label>
+                        <input type="text" id="paymentDescription" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentCategory">Category</label>
+                        <select id="paymentCategory" required>
+                            <option value="Food">Food</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentAmount">Amount</label>
+                        <input type="number" id="paymentAmount" step="0.01" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="action-button">Save Payment</button>
+                        <button type="button" class="cancel-button" onclick="closePaymentModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
