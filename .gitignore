@@ -23,6 +23,11 @@ wheels/
 # Virtual Environment
 venv/
 ENV/
+env/
+.env/
+.venv/
+virtualenv/
+python-venv/
 
 # IDE
 .idea/
