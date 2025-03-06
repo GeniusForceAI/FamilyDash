@@ -260,6 +260,9 @@ function openIncomeModal() {
         if (biweeklyInput) biweeklyInput.value = state.income.biweekly;
         if (monthlyInput) monthlyInput.value = state.income.monthly;
         
+        // Setup auto-calculation
+        setupIncomeCalculation();
+        
         modal.style.display = 'flex';
     }
 }
@@ -271,6 +274,28 @@ function closeIncomeModal() {
         // Reset form
         const form = document.getElementById('incomeForm');
         if (form) form.reset();
+    }
+}
+
+// Add event listeners for income inputs to auto-calculate
+function setupIncomeCalculation() {
+    const biweeklyInput = document.getElementById('biweeklyIncomeInput');
+    const monthlyInput = document.getElementById('monthlyIncomeInput');
+    
+    if (biweeklyInput && monthlyInput) {
+        // When biweekly income changes, update monthly income
+        biweeklyInput.addEventListener('input', function() {
+            const biweeklyValue = parseFloat(this.value) || 0;
+            // Monthly is approximately 2.17 times biweekly (26 biweekly periods / 12 months)
+            monthlyInput.value = (biweeklyValue * 26 / 12).toFixed(2);
+        });
+        
+        // When monthly income changes, update biweekly income
+        monthlyInput.addEventListener('input', function() {
+            const monthlyValue = parseFloat(this.value) || 0;
+            // Biweekly is approximately monthly divided by 2.17
+            biweeklyInput.value = (monthlyValue * 12 / 26).toFixed(2);
+        });
     }
 }
 
