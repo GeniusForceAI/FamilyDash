@@ -69,7 +69,7 @@
                 <div class="card income-summary">
                     <div class="card-header">
                         <h2>Income Summary</h2>
-                        <button class="action-button">
+                        <button class="action-button" id="editIncomeBtn">
                             <i class="fas fa-pencil"></i>
                         </button>
                     </div>
@@ -255,6 +255,78 @@
                         <div class="form-actions">
                             <button type="submit" class="action-button">Add Payment</button>
                             <button type="button" class="cancel-button" onclick="closePaymentModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bill Modal -->
+    <div id="billModal" class="modal">
+        <div class="modal-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 id="billModalTitle">Add Bill</h2>
+                    <button class="close-button" onclick="closeBillModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <form id="billForm">
+                        <div class="form-group">
+                            <label for="billName">Name</label>
+                            <input type="text" id="billName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="billCategory">Category</label>
+                            <select id="billCategory" name="category" required>
+                                <option value="Housing">Housing</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Insurance">Insurance</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="billAmount">Amount</label>
+                            <input type="number" id="billAmount" name="amount" step="0.01" required>
+                        </div>
+                        <input type="hidden" id="billEditMode" value="add">
+                        <input type="hidden" id="billOriginalName" value="">
+                        <div class="form-actions">
+                            <button type="submit" class="action-button" id="billSubmitBtn">Add Bill</button>
+                            <button type="button" class="cancel-button" onclick="closeBillModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Income Modal -->
+    <div id="incomeModal" class="modal">
+        <div class="modal-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Update Income</h2>
+                    <button class="close-button" onclick="closeIncomeModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <form id="incomeForm">
+                        <div class="form-group">
+                            <label for="biweeklyIncomeInput">Biweekly Income</label>
+                            <input type="number" id="biweeklyIncomeInput" name="biweekly" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="monthlyIncomeInput">Monthly Income</label>
+                            <input type="number" id="monthlyIncomeInput" name="monthly" step="0.01" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="action-button">Update Income</button>
+                            <button type="button" class="cancel-button" onclick="closeIncomeModal()">Cancel</button>
                         </div>
                     </form>
                 </div>

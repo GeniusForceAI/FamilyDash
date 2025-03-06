@@ -66,6 +66,12 @@ function initializeApp() {
     if (addBillBtn) {
         addBillBtn.addEventListener('click', openBillModal);
     }
+    
+    // Edit income button handler
+    const editIncomeBtn = document.getElementById('editIncomeBtn');
+    if (editIncomeBtn) {
+        editIncomeBtn.addEventListener('click', openIncomeModal);
+    }
 
     // Form handlers
     const paymentForm = document.getElementById('paymentForm');
@@ -76,6 +82,11 @@ function initializeApp() {
     const billForm = document.getElementById('billForm');
     if (billForm) {
         billForm.addEventListener('submit', handleBillSubmit);
+    }
+    
+    const incomeForm = document.getElementById('incomeForm');
+    if (incomeForm) {
+        incomeForm.addEventListener('submit', handleIncomeSubmit);
     }
 }
 
@@ -216,6 +227,9 @@ function closePaymentModal() {
     const modal = document.getElementById('paymentModal');
     if (modal) {
         modal.style.display = 'none';
+        // Reset form
+        const form = document.getElementById('paymentForm');
+        if (form) form.reset();
     }
 }
 
@@ -230,103 +244,253 @@ function closeBillModal() {
     const modal = document.getElementById('billModal');
     if (modal) {
         modal.style.display = 'none';
+        // Reset form
+        const form = document.getElementById('billForm');
+        if (form) form.reset();
+    }
+}
+
+function openIncomeModal() {
+    const modal = document.getElementById('incomeModal');
+    if (modal) {
+        // Pre-fill with current values
+        const biweeklyInput = document.getElementById('biweeklyIncomeInput');
+        const monthlyInput = document.getElementById('monthlyIncomeInput');
+        
+        if (biweeklyInput) biweeklyInput.value = state.income.biweekly;
+        if (monthlyInput) monthlyInput.value = state.income.monthly;
+        
+        modal.style.display = 'flex';
+    }
+}
+
+function closeIncomeModal() {
+    const modal = document.getElementById('incomeModal');
+    if (modal) {
+        modal.style.display = 'none';
+        // Reset form
+        const form = document.getElementById('incomeForm');
+        if (form) form.reset();
+    }
+}
+
+// Edit functions
+function editBill(billName) {
+    // Find the bill in state
+    const bill = state.bills.find(b => b.name === billName);
+    if (!bill) return;
+    
+    // Set form values
+    const nameInput = document.getElementById('billName');
+    const categorySelect = document.getElementById('billCategory');
+    const amountInput = document.getElementById('billAmount');
+    const editModeInput = document.getElementById('billEditMode');
+    const originalNameInput = document.getElementById('billOriginalName');
+    const modalTitle = document.getElementById('billModalTitle');
+    const submitBtn = document.getElementById('billSubmitBtn');
+    
+    if (nameInput) nameInput.value = bill.name;
+    if (categorySelect) categorySelect.value = bill.category;
+    if (amountInput) amountInput.value = bill.amount;
+    if (editModeInput) editModeInput.value = 'edit';
+    if (originalNameInput) originalNameInput.value = bill.name;
+    if (modalTitle) modalTitle.textContent = 'Edit Bill';
+    if (submitBtn) submitBtn.textContent = 'Update Bill';
+    
+    // Open the modal
+    openBillModal();
+}
+
+function editPayment(paymentDate) {
+    // Find the payment in state
+    const payment = state.payments.find(p => p.date === paymentDate);
+    if (!payment) return;
+    
+    // Set form values
+    const dateInput = document.getElementById('paymentDate');
+    const descriptionInput = document.getElementById('paymentDescription');
+    const categorySelect = document.getElementById('paymentCategory');
+    const amountInput = document.getElementById('paymentAmount');
+    
+    if (dateInput) dateInput.value = payment.date;
+    if (descriptionInput) descriptionInput.value = payment.description;
+    if (categorySelect) categorySelect.value = payment.category;
+    if (amountInput) amountInput.value = payment.amount;
+    
+    // Update modal title and button
+    const modalTitle = document.querySelector('#paymentModal .card-header h2');
+    const submitBtn = document.querySelector('#paymentForm button[type="submit"]');
+    
+    if (modalTitle) modalTitle.textContent = 'Edit Payment';
+    if (submitBtn) submitBtn.textContent = 'Update Payment';
+    
+    // Add hidden field for edit mode if it doesn't exist
+    let editModeInput = document.getElementById('paymentEditMode');
+    if (!editModeInput) {
+        editModeInput = document.createElement('input');
+        editModeInput.type = 'hidden';
+        editModeInput.id = 'paymentEditMode';
+        document.getElementById('paymentForm').appendChild(editModeInput);
+    }
+    editModeInput.value = 'edit';
+    
+    // Add hidden field for original date if it doesn't exist
+    let originalDateInput = document.getElementById('paymentOriginalDate');
+    if (!originalDateInput) {
+        originalDateInput = document.createElement('input');
+        originalDateInput.type = 'hidden';
+        originalDateInput.id = 'paymentOriginalDate';
+        document.getElementById('paymentForm').appendChild(originalDateInput);
+    }
+    originalDateInput.value = payment.date;
+    
+    // Open the modal
+    openPaymentModal();
+}
+
+// Delete functions
+function deleteBill(billName) {
+    if (confirm(`Are you sure you want to delete the bill "${billName}"?`)) {
+        // Remove the bill from state
+        state.bills = state.bills.filter(bill => bill.name !== billName);
+        
+        // Update the server
+        updateFinancialData();
+    }
+}
+
+function deletePayment(paymentDate) {
+    if (confirm('Are you sure you want to delete this payment?')) {
+        // Remove the payment from state
+        state.payments = state.payments.filter(payment => payment.date !== paymentDate);
+        
+        // Update the server
+        updateFinancialData();
+    }
+}
+
+// Helper function to update financial data
+async function updateFinancialData() {
+    const updatedData = {
+        income: state.income,
+        bills: state.bills,
+        payments: state.payments
+    };
+    
+    try {
+        const response = await fetch(`${domain}/api/finances`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(updatedData)
+        });
+        
+        if (!response.ok) throw new Error('Failed to update financial data');
+        
+        // Update UI
+        updateDashboard();
+    } catch (error) {
+        console.error('Error updating financial data:', error);
     }
 }
 
 // Form handling
 async function handlePaymentSubmit(e) {
     e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
-
-    // Update state with new payment
-    const newPayment = {
-        date: formData.get('date'),
-        description: formData.get('description'),
-        category: formData.get('category'),
-        amount: parseFloat(formData.get('amount'))
-    };
-
-    // Add new payment to state
-    state.payments.push(newPayment);
-
-    // Create updated data object
-    const updatedData = {
-        income: state.income,
-        bills: state.bills,
-        payments: state.payments
-    };
-
-    try {
-        const response = await fetch(`${domain}/api/finances`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify(updatedData)
+    
+    // Get form data
+    const paymentDate = document.getElementById('paymentDate').value;
+    const paymentDescription = document.getElementById('paymentDescription').value;
+    const paymentCategory = document.getElementById('paymentCategory').value;
+    const paymentAmount = parseFloat(document.getElementById('paymentAmount').value);
+    
+    // Check if we're editing or adding
+    const editMode = document.getElementById('paymentEditMode')?.value === 'edit';
+    const originalDate = document.getElementById('paymentOriginalDate')?.value;
+    
+    if (editMode && originalDate) {
+        // Find and update the existing payment
+        const index = state.payments.findIndex(p => p.date === originalDate);
+        if (index !== -1) {
+            state.payments[index] = {
+                date: paymentDate,
+                description: paymentDescription,
+                category: paymentCategory,
+                amount: paymentAmount
+            };
+        }
+    } else {
+        // Add new payment
+        state.payments.push({
+            date: paymentDate,
+            description: paymentDescription,
+            category: paymentCategory,
+            amount: paymentAmount
         });
-
-        if (!response.ok) throw new Error('Failed to update financial data');
-
-        // Close modal and update UI
-        closePaymentModal();
-        updateDashboard();
-    } catch (error) {
-        console.error('Error updating financial data:', error);
-        // Remove the payment we just added since the update failed
-        state.payments.pop();
     }
+    
+    // Update server and UI
+    await updateFinancialData();
+    closePaymentModal();
 }
 
 async function handleBillSubmit(e) {
     e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
-
-    // Update state with new bill
-    const newBill = {
-        name: formData.get('name'),
-        amount: parseFloat(formData.get('amount')),
-        category: formData.get('category')
-    };
-
-    // Add new bill to state
-    state.bills.push(newBill);
-
-    // Create updated data object
-    const updatedData = {
-        income: state.income,
-        bills: state.bills,
-        payments: state.payments
-    };
-
-    try {
-        const response = await fetch(`${domain}/api/finances`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify(updatedData)
+    
+    // Get form data
+    const billName = document.getElementById('billName').value;
+    const billCategory = document.getElementById('billCategory').value;
+    const billAmount = parseFloat(document.getElementById('billAmount').value);
+    
+    // Check if we're editing or adding
+    const editMode = document.getElementById('billEditMode').value === 'edit';
+    const originalName = document.getElementById('billOriginalName').value;
+    
+    if (editMode && originalName) {
+        // Find and update the existing bill
+        const index = state.bills.findIndex(b => b.name === originalName);
+        if (index !== -1) {
+            state.bills[index] = {
+                name: billName,
+                category: billCategory,
+                amount: billAmount
+            };
+        }
+    } else {
+        // Add new bill
+        state.bills.push({
+            name: billName,
+            category: billCategory,
+            amount: billAmount
         });
-
-        if (!response.ok) throw new Error('Failed to update financial data');
-
-        // Close modal and update UI
-        closeBillModal();
-        updateDashboard();
-    } catch (error) {
-        console.error('Error updating financial data:', error);
-        // Remove the bill we just added since the update failed
-        state.bills.pop();
     }
+    
+    // Update server and UI
+    await updateFinancialData();
+    closeBillModal();
+}
+
+async function handleIncomeSubmit(e) {
+    e.preventDefault();
+    
+    // Get form data
+    const biweeklyIncome = parseFloat(document.getElementById('biweeklyIncomeInput').value);
+    const monthlyIncome = parseFloat(document.getElementById('monthlyIncomeInput').value);
+    
+    // Update state
+    state.income.biweekly = biweeklyIncome;
+    state.income.monthly = monthlyIncome;
+    
+    // Update server and UI
+    await updateFinancialData();
+    closeIncomeModal();
 }
 
 // Initialize the app when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM fully loaded - initializing app');
-    alert('DOM fully loaded - initializing app');
+    console.log('DOM fully loaded -  app');
     initializeApp();
     
     // Explicitly call loadFinancialData to ensure API call is made
