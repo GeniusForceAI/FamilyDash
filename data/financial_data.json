@@ -1,0 +1,33 @@
+{
+  "income": {
+    "biweekly": 2779.75,
+    "monthly": 5559.5
+  },
+  "bills": [
+    {
+      "name": "Rent",
+      "amount": 525.0,
+      "category": "Housing"
+    },
+    {
+      "name": "Vehicle",
+      "amount": 380.0,
+      "category": "Transportation"
+    },
+    {
+      "name": "Insurance",
+      "amount": 200.0,
+      "category": "Insurance"
+    },
+    {
+      "name": "Wifi",
+      "amount": 40.0,
+      "category": "Utilities"
+    },
+    {
+      "name": "Utilities",
+      "amount": 150.0,
+      "category": "Utilities"
+    }
+  ]
+}
