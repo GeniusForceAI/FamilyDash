@@ -392,6 +392,7 @@ h3 { font-size: 1.25rem; }
 .light-mode .form-group select {
     background: var(--light-bg);
     border-color: var(--light-border);
+    color: var(--text-light);
 }
 
 /* Modal */
@@ -424,6 +425,40 @@ h3 { font-size: 1.25rem; }
     }
 }
 
+/* Settings Page */
+.settings-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.settings-form {
+    margin-top: 2rem;
+}
+
+.settings-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.settings-form input,
+.settings-form select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--dark-border);
+    border-radius: 8px;
+    background: var(--dark-bg);
+    color: inherit;
+}
+
+.light-mode .settings-form input,
+.light-mode .settings-form select {
+    background: var(--light-bg);
+    border-color: var(--light-border);
+    color: var(--text-light);
+}
+
 /* Mobile Styles */
 @media (max-width: 768px) {
     .side-nav {
@@ -446,4 +481,35 @@ h3 { font-size: 1.25rem; }
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dark-mode ::-webkit-scrollbar-track {
+    background: var(--dark-bg);
+}
+
+.light-mode ::-webkit-scrollbar-track {
+    background: var(--light-bg);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+    background: var(--dark-border);
+    border-radius: 4px;
+}
+
+.light-mode ::-webkit-scrollbar-thumb {
+    background: var(--light-border);
+    border-radius: 4px;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary-dark);
+}
+
+.light-mode ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary-light);
 }

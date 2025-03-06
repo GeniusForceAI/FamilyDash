@@ -1,3 +1,6 @@
+// Domain for API calls
+const domain = "http://localhost:8000";
+
 // State Management
 let state = {
     income: {
@@ -5,56 +8,25 @@ let state = {
         monthly: 0
     },
     bills: [],
-    payments: [],
-    currentPage: 'dashboard'
+    payments: []
 };
 
 // DOM Elements
 const menuToggle = document.getElementById('menuToggle');
 const themeToggle = document.getElementById('themeToggle');
 const sideNav = document.querySelector('.side-nav');
-const navLinks = document.querySelectorAll('.nav-links a');
-const pages = document.querySelectorAll('.page');
 const dateDisplay = document.querySelector('.date-display');
-const addPaymentBtn = document.getElementById('addPaymentBtn');
-const paymentModal = document.getElementById('paymentModal');
-const paymentForm = document.getElementById('paymentForm');
 
 // Theme handling
 function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    document.body.classList.toggle('light-mode');
+    const isDarkMode = document.body.classList.toggle('dark-mode');
+    document.body.classList.toggle('light-mode', !isDarkMode);
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
 }
 
 // Mobile menu handling
 function toggleMenu() {
     document.body.classList.toggle('nav-open');
-}
-
-// Navigation handling
-function navigateToPage(pageId) {
-    // Hide all pages
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-    
-    // Show selected page
-    const targetPage = document.getElementById(pageId);
-    if (targetPage) {
-        targetPage.classList.add('active');
-    }
-
-    // Update active nav item
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    const activeNavItem = document.querySelector(`.nav-item a[href="#${pageId}"]`)?.parentElement;
-    if (activeNavItem) {
-        activeNavItem.classList.add('active');
-    }
-
-    // Close mobile menu if open
-    document.body.classList.remove('nav-open');
 }
 
 // Initialize event listeners
@@ -65,32 +37,16 @@ function initializeApp() {
         themeToggle.addEventListener('click', toggleTheme);
     }
 
+    // Apply saved theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.body.classList.toggle('dark-mode', savedTheme === 'dark');
+    document.body.classList.toggle('light-mode', savedTheme === 'light');
+
     // Mobile menu toggle
     const menuToggle = document.getElementById('menuToggle');
     if (menuToggle) {
         menuToggle.addEventListener('click', toggleMenu);
     }
-
-    // Navigation
-    document.querySelectorAll('.nav-item a').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const pageId = link.getAttribute('href').substring(1);
-            navigateToPage(pageId);
-            // Update URL hash without triggering scroll
-            history.pushState(null, '', `#${pageId}`);
-        });
-    });
-
-    // Handle initial page load based on URL hash
-    const initialPage = window.location.hash.substring(1) || 'dashboard';
-    navigateToPage(initialPage);
-
-    // Handle browser back/forward
-    window.addEventListener('popstate', () => {
-        const pageId = window.location.hash.substring(1) || 'dashboard';
-        navigateToPage(pageId);
-    });
 
     // Format date in header
     const dateDisplay = document.querySelector('.date-display');
@@ -101,21 +57,15 @@ function initializeApp() {
 
     // Add payment button handlers
     const addPaymentBtn = document.getElementById('addPaymentBtn');
-    const addPaymentBtn2 = document.getElementById('addPaymentBtn2');
-    [addPaymentBtn, addPaymentBtn2].forEach(btn => {
-        if (btn) {
-            btn.addEventListener('click', openPaymentModal);
-        }
-    });
+    if (addPaymentBtn) {
+        addPaymentBtn.addEventListener('click', openPaymentModal);
+    }
 
     // Add bill button handlers
     const addBillBtn = document.getElementById('addBillBtn');
-    const addBillBtn2 = document.getElementById('addBillBtn2');
-    [addBillBtn, addBillBtn2].forEach(btn => {
-        if (btn) {
-            btn.addEventListener('click', openBillModal);
-        }
-    });
+    if (addBillBtn) {
+        addBillBtn.addEventListener('click', openBillModal);
+    }
 
     // Form handlers
     const paymentForm = document.getElementById('paymentForm');
@@ -123,63 +73,94 @@ function initializeApp() {
         paymentForm.addEventListener('submit', handlePaymentSubmit);
     }
 
-    // Load initial data
-    loadFinancialData();
+    const billForm = document.getElementById('billForm');
+    if (billForm) {
+        billForm.addEventListener('submit', handleBillSubmit);
+    }
 }
 
-// Financial data handling
-let financialData = {
-    income: {
-        biweekly: 0,
-        monthly: 0
-    },
-    bills: [],
-    payments: []
-};
-
+// Load and update data
 async function loadFinancialData() {
     try {
-        const response = await fetch('/api/finances');
-        if (!response.ok) throw new Error('Failed to load financial data');
-        financialData = await response.json();
+        console.log('Fetching financial data from /api/finances...');
+        const response = await fetch(`${domain}/api/finances`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (!response.ok) {
+            console.error('Server response not ok:', {
+                status: response.status,
+                statusText: response.statusText,
+                url: response.url
+            });
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            throw new Error(`Failed to load financial data: ${response.status} ${response.statusText}`);
+        }
+
+        console.log('Successfully received response from server');
+        const data = await response.json();
+        console.log('Parsed financial data:', data);
+
+        // Update state with new data
+        state.income = data.income;
+        state.bills = data.bills;
+        state.payments = data.payments;
+        
+        console.log('Updated application state:', state);
         updateDashboard();
     } catch (error) {
         console.error('Error loading financial data:', error);
+        // Show error in UI
+        const dashboardError = document.getElementById('dashboardError');
+        if (dashboardError) {
+            dashboardError.textContent = 'Failed to load financial data. Please try refreshing the page.';
+            dashboardError.style.display = 'block';
+        }
     }
 }
 
 function updateDashboard() {
     // Update income display
-    document.getElementById('biweeklyIncome').textContent = formatCurrency(financialData.income.biweekly);
-    document.getElementById('monthlyIncome').textContent = formatCurrency(financialData.income.monthly);
+    const biweeklyIncome = document.getElementById('biweeklyIncome');
+    const monthlyIncomeElement = document.getElementById('monthlyIncome');
+    if (biweeklyIncome) biweeklyIncome.textContent = formatCurrency(state.income.biweekly);
+    if (monthlyIncomeElement) monthlyIncomeElement.textContent = formatCurrency(state.income.monthly);
 
     // Update bills table
     const billsTableBody = document.getElementById('billsTableBody');
-    const billsTableBody2 = document.getElementById('billsTableBody2');
-    const billsHTML = financialData.bills.map(bill => `
-        <tr>
-            <td>${bill.name}</td>
-            <td>${formatCurrency(bill.amount)}</td>
-            <td>${bill.category}</td>
-            <td>
-                <button class="action-button" onclick="editBill('${bill.name}')">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="action-button" onclick="deleteBill('${bill.name}')">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-    `).join('');
-
-    if (billsTableBody) billsTableBody.innerHTML = billsHTML;
-    if (billsTableBody2) billsTableBody2.innerHTML = billsHTML;
+    if (billsTableBody) {
+        billsTableBody.innerHTML = state.bills.map(bill => `
+            <tr>
+                <td>${bill.name}</td>
+                <td>${formatCurrency(bill.amount)}</td>
+                <td>${bill.category}</td>
+                <td>
+                    <button class="action-button" onclick="editBill('${bill.name}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-button" onclick="deleteBill('${bill.name}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
 
     // Update total bills and progress
-    const totalBills = financialData.bills.reduce((sum, bill) => sum + bill.amount, 0);
-    document.getElementById('totalBills').textContent = formatCurrency(totalBills);
+    const totalBills = state.bills.reduce((sum, bill) => sum + bill.amount, 0);
+    const totalBillsElement = document.getElementById('totalBills');
+    if (totalBillsElement) {
+        totalBillsElement.textContent = formatCurrency(totalBills);
+    }
 
-    const monthlyIncome = financialData.income.monthly;
+    // Use the monthly income from state for calculations
+    const monthlyIncome = state.income.monthly;
     const billsPercentage = monthlyIncome > 0 ? (totalBills / monthlyIncome) * 100 : 0;
     
     const progressBar = document.querySelector('.progress');
@@ -195,13 +176,16 @@ function updateDashboard() {
     // Update payments table
     const paymentsTableBody = document.getElementById('paymentsTableBody');
     if (paymentsTableBody) {
-        paymentsTableBody.innerHTML = financialData.payments.map(payment => `
+        paymentsTableBody.innerHTML = state.payments.map(payment => `
             <tr>
                 <td>${new Date(payment.date).toLocaleDateString()}</td>
                 <td>${payment.description}</td>
                 <td>${payment.category}</td>
                 <td>${formatCurrency(payment.amount)}</td>
                 <td>
+                    <button class="action-button" onclick="editPayment('${payment.date}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
                     <button class="action-button" onclick="deletePayment('${payment.date}')">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -209,26 +193,14 @@ function updateDashboard() {
             </tr>
         `).join('');
     }
-
-    // Update payment statistics
-    const thisMonth = new Date().getMonth();
-    const thisYear = new Date().getFullYear();
-    const monthlyPayments = financialData.payments
-        .filter(payment => {
-            const paymentDate = new Date(payment.date);
-            return paymentDate.getMonth() === thisMonth && paymentDate.getFullYear() === thisYear;
-        })
-        .reduce((sum, payment) => sum + payment.amount, 0);
-
-    document.getElementById('totalPayments').textContent = formatCurrency(monthlyPayments);
-    document.getElementById('remainingBudget').textContent = formatCurrency(monthlyIncome - monthlyPayments);
 }
 
 // Utility functions
 function formatCurrency(amount) {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
+        minimumFractionDigits: 2
     }).format(amount);
 }
 
@@ -236,7 +208,7 @@ function formatCurrency(amount) {
 function openPaymentModal() {
     const modal = document.getElementById('paymentModal');
     if (modal) {
-        modal.style.display = 'block';
+        modal.style.display = 'flex';
     }
 }
 
@@ -250,7 +222,7 @@ function closePaymentModal() {
 function openBillModal() {
     const modal = document.getElementById('billModal');
     if (modal) {
-        modal.style.display = 'block';
+        modal.style.display = 'flex';
     }
 }
 
@@ -264,34 +236,110 @@ function closeBillModal() {
 // Form handling
 async function handlePaymentSubmit(e) {
     e.preventDefault();
-    const formData = {
-        date: document.getElementById('paymentDate').value,
-        description: document.getElementById('paymentDescription').value,
-        category: document.getElementById('paymentCategory').value,
-        amount: parseFloat(document.getElementById('paymentAmount').value)
+    const form = e.target;
+    const formData = new FormData(form);
+
+    // Update state with new payment
+    const newPayment = {
+        date: formData.get('date'),
+        description: formData.get('description'),
+        category: formData.get('category'),
+        amount: parseFloat(formData.get('amount'))
+    };
+
+    // Add new payment to state
+    state.payments.push(newPayment);
+
+    // Create updated data object
+    const updatedData = {
+        income: state.income,
+        bills: state.bills,
+        payments: state.payments
     };
 
     try {
-        const response = await fetch('/api/finances', {
+        const response = await fetch(`${domain}/api/finances`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             },
-            body: JSON.stringify({
-                type: 'payment',
-                data: formData
-            })
+            body: JSON.stringify(updatedData)
         });
 
-        if (!response.ok) throw new Error('Failed to save payment');
-        
-        await loadFinancialData();
+        if (!response.ok) throw new Error('Failed to update financial data');
+
+        // Close modal and update UI
         closePaymentModal();
-        e.target.reset();
+        updateDashboard();
     } catch (error) {
-        console.error('Error saving payment:', error);
+        console.error('Error updating financial data:', error);
+        // Remove the payment we just added since the update failed
+        state.payments.pop();
     }
 }
 
-// Initialize the app
-document.addEventListener('DOMContentLoaded', initializeApp);
+async function handleBillSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+
+    // Update state with new bill
+    const newBill = {
+        name: formData.get('name'),
+        amount: parseFloat(formData.get('amount')),
+        category: formData.get('category')
+    };
+
+    // Add new bill to state
+    state.bills.push(newBill);
+
+    // Create updated data object
+    const updatedData = {
+        income: state.income,
+        bills: state.bills,
+        payments: state.payments
+    };
+
+    try {
+        const response = await fetch(`${domain}/api/finances`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(updatedData)
+        });
+
+        if (!response.ok) throw new Error('Failed to update financial data');
+
+        // Close modal and update UI
+        closeBillModal();
+        updateDashboard();
+    } catch (error) {
+        console.error('Error updating financial data:', error);
+        // Remove the bill we just added since the update failed
+        state.bills.pop();
+    }
+}
+
+// Initialize the app when the DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM fully loaded - initializing app');
+    alert('DOM fully loaded - initializing app');
+    initializeApp();
+    
+    // Explicitly call loadFinancialData to ensure API call is made
+    console.log('Loading financial data...');
+    loadFinancialData();
+});
+
+// Also try to load data immediately in case DOMContentLoaded already fired
+console.log('Script loaded - checking if DOM is already loaded');
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    console.log('DOM already loaded - initializing app immediately');
+    setTimeout(() => {
+        initializeApp();
+        loadFinancialData();
+    }, 1);
+}

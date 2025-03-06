@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Baker Family Finances</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="dark-mode">
+    <!-- Mobile Menu Toggle -->
+    <button id="menuToggle" class="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button id="themeToggle" class="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Side Navigation -->
+    <nav class="side-nav">
+        <div class="nav-header">
+            <div class="nav-logo"></div>
+            <h2>Baker Finances</h2>
+        </div>
+        <ul class="nav-links">
+            <div class="nav-item">
+                <a href="../index.html">
+                    <i class="fas fa-chart-line"></i>
+                    Dashboard
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="payments.html">
+                    <i class="fas fa-money-bill-wave"></i>
+                    Payments
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="bills.html">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    Bills
+                </a>
+            </div>
+            <div class="nav-item active">
+                <a href="settings.html">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+            </div>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Settings</h1>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Profile Settings -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Profile Settings</h2>
+                </div>
+                <div class="card-content">
+                    <form id="profileForm" class="settings-form">
+                        <div class="form-group">
+                            <label for="userName">Name</label>
+                            <input type="text" id="userName" value="Baker Family">
+                        </div>
+                        <div class="form-group">
+                            <label for="userEmail">Email</label>
+                            <input type="email" id="userEmail" placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="currency">Currency</label>
+                            <select id="currency">
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="GBP">GBP (£)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="primary-button">Save Profile</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Notification Settings</h2>
+                </div>
+                <div class="card-content">
+                    <form id="notificationForm" class="settings-form">
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="emailNotifications" checked>
+                                Email Notifications
+                            </label>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="billReminders" checked>
+                                Bill Payment Reminders
+                            </label>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="monthlyReports" checked>
+                                Monthly Reports
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="reminderDays">Reminder Days Before Due Date</label>
+                            <input type="number" id="reminderDays" value="3" min="1" max="14">
+                        </div>
+                        <button type="submit" class="primary-button">Save Notifications</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Display Settings -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Display Settings</h2>
+                </div>
+                <div class="card-content">
+                    <form id="displayForm" class="settings-form">
+                        <div class="form-group">
+                            <label for="theme">Theme</label>
+                            <select id="theme">
+                                <option value="dark">Dark Mode</option>
+                                <option value="light">Light Mode</option>
+                                <option value="system">System Default</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dateFormat">Date Format</label>
+                            <select id="dateFormat">
+                                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="primary-button">Save Display Settings</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Data Management -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Data Management</h2>
+                </div>
+                <div class="card-content">
+                    <form id="dataForm" class="settings-form">
+                        <div class="form-group">
+                            <button type="button" class="secondary-button" id="exportData">
+                                <i class="fas fa-download"></i>
+                                Export Data
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="secondary-button" id="importData">
+                                <i class="fas fa-upload"></i>
+                                Import Data
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="danger-button" id="clearData">
+                                <i class="fas fa-trash"></i>
+                                Clear All Data
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Action</h2>
+                <button class="close-button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmationMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="danger-button" id="confirmAction">Confirm</button>
+                <button class="secondary-button" onclick="closeConfirmationModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+</body>
+</html>

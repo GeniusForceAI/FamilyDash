@@ -1,0 +1,9 @@
+{
+  "port": 3000,
+  "proxy": {
+    "/api": "http://localhost:8000/api"
+  },
+  "injectBody": true,
+  "open": true,
+  "navigate": true
+}

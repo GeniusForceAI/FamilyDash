@@ -27,37 +27,38 @@
             <div class="nav-logo"></div>
             <h2>Baker Finances</h2>
         </div>
-        <ul class="nav-links">
-            <li class="nav-item active">
-                <a href="#dashboard">
+        <nav class="nav-links">
+            <div class="nav-item active">
+                <a href="index.html">
                     <i class="fas fa-chart-line"></i>
                     Dashboard
                 </a>
-            </li>
-            <li class="nav-item">
-                <a href="#payments">
-                    <i class="fas fa-credit-card"></i>
+            </div>
+            <div class="nav-item">
+                <a href="pages/payments.html">
+                    <i class="fas fa-money-bill-wave"></i>
                     Payments
                 </a>
-            </li>
-            <li class="nav-item">
-                <a href="#bills">
+            </div>
+            <div class="nav-item">
+                <a href="pages/bills.html">
                     <i class="fas fa-file-invoice-dollar"></i>
                     Bills
                 </a>
-            </li>
-            <li class="nav-item">
-                <a href="#settings">
+            </div>
+            <div class="nav-item">
+                <a href="pages/settings.html">
                     <i class="fas fa-cog"></i>
                     Settings
                 </a>
-            </li>
-        </ul>
+            </div>
+        </nav>
     </nav>
 
     <main class="main-content">
         <!-- Dashboard Page -->
         <div id="dashboard" class="page active">
+            <div id="dashboardError" class="error-message" style="display: none;"></div>
             <div class="page-header">
                 <h1>Dashboard Overview</h1>
                 <div class="date-display"></div>

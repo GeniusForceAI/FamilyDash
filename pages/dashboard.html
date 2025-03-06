@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Baker Family Finances</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="dark-mode">
+    <!-- Mobile Menu Toggle -->
+    <button id="menuToggle" class="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button id="themeToggle" class="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Side Navigation -->
+    <nav class="side-nav">
+        <div class="nav-header">
+            <div class="nav-logo"></div>
+            <h2>Baker Finances</h2>
+        </div>
+        <ul class="nav-links">
+            <li class="nav-item active">
+                <a href="dashboard.html">
+                    <i class="fas fa-chart-line"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="payments.html">
+                    <i class="fas fa-credit-card"></i>
+                    Payments
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="bills.html">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    Bills
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="settings.html">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Dashboard Overview</h1>
+            <div class="date-display"></div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Income Summary -->
+            <div class="card income-summary">
+                <div class="card-header">
+                    <h2>Income Summary</h2>
+                    <button class="action-button">
+                        <i class="fas fa-pencil"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div class="income-item">
+                        <span>Biweekly</span>
+                        <span id="biweeklyIncome">$0.00</span>
+                    </div>
+                    <div class="income-item">
+                        <span>Monthly</span>
+                        <span id="monthlyIncome">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bills Summary -->
+            <div class="card bills-summary">
+                <div class="card-header">
+                    <h2>Bills Summary</h2>
+                    <button class="action-button" id="addBillBtn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Amount</th>
+                                    <th>Category</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="billsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bills-total">
+                        <span>Total Bills:</span>
+                        <span id="totalBills">$0.00</span>
+                    </div>
+                    <div class="bills-progress">
+                        <div class="progress-bar">
+                            <div class="progress"></div>
+                        </div>
+                        <span class="progress-text">0% of Monthly Income</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Stats -->
+            <div class="card payment-stats">
+                <div class="card-header">
+                    <h2>Payment Statistics</h2>
+                </div>
+                <div class="card-content">
+                    <div class="stat-item">
+                        <span>Total Payments This Month</span>
+                        <span id="totalPayments">$0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Remaining Budget</span>
+                        <span id="remainingBudget">$0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Payment</h2>
+                <button class="close-button">&times;</button>
+            </div>
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label for="paymentDate">Date</label>
+                    <input type="date" id="paymentDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="paymentDescription">Description</label>
+                    <input type="text" id="paymentDescription" required>
+                </div>
+                <div class="form-group">
+                    <label for="paymentCategory">Category</label>
+                    <input type="text" id="paymentCategory" required>
+                </div>
+                <div class="form-group">
+                    <label for="paymentAmount">Amount</label>
+                    <input type="number" id="paymentAmount" step="0.01" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="primary-button">Add Payment</button>
+                    <button type="button" class="secondary-button" onclick="closePaymentModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+</body>
+</html>
