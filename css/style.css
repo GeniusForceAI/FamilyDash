@@ -303,34 +303,73 @@ h3 { font-size: 1.25rem; }
 }
 
 .progress-bar {
-    height: 8px;
-    background: var(--dark-border);
-    border-radius: 4px;
+    height: 12px;
+    background-color: var(--dark-border);
+    border-radius: 6px;
     overflow: hidden;
     margin-bottom: 0.5rem;
 }
 
 .light-mode .progress-bar {
-    background: var(--light-border);
+    background-color: var(--light-border);
 }
 
 .progress {
     height: 100%;
-    background: var(--dark-accent);
-    transition: width 0.3s ease;
+    background-color: var(--dark-accent);
+    border-radius: 6px;
+    transition: width 0.5s ease;
 }
 
 .light-mode .progress {
-    background: var(--light-accent);
+    background-color: var(--light-accent);
 }
 
 .progress-text {
-    font-size: 0.875rem;
-    color: var(--dark-secondary);
+    display: block;
+    margin-top: 0.75rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-align: center;
 }
 
-.light-mode .progress-text {
-    color: var(--light-secondary);
+/* Prominent Financial Figures */
+.bills-total, .progress-text {
+    color: var(--dark-accent);
+}
+
+.light-mode .bills-total, .light-mode .progress-text {
+    color: var(--light-accent);
+}
+
+/* Bills Summary Styles */
+.bills-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--dark-border);
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.light-mode .bills-total {
+    border-bottom-color: var(--light-border);
+}
+
+/* Bills Summary Highlight */
+.bills-summary-highlight {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background-color: rgba(59, 130, 246, 0.1);
+    border-radius: 12px;
+    border-left: 4px solid var(--dark-accent);
+}
+
+.light-mode .bills-summary-highlight {
+    background-color: rgba(37, 99, 235, 0.05);
+    border-left: 4px solid var(--light-accent);
 }
 
 /* Income Summary */
@@ -512,4 +551,89 @@ h3 { font-size: 1.25rem; }
 
 .light-mode ::-webkit-scrollbar-thumb:hover {
     background: var(--text-secondary-light);
+}
+
+/* Financial Summary Banner */
+.financial-summary-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(to right, var(--dark-accent), var(--dark-secondary));
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.light-mode .financial-summary-banner {
+    background: linear-gradient(to right, var(--light-accent), var(--light-secondary));
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.summary-item:first-child {
+    flex: 1;
+}
+
+.summary-item:last-child {
+    flex: 2;
+}
+
+.summary-label {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.summary-value {
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.progress-container {
+    width: 100%;
+}
+
+.progress-bar {
+    height: 12px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress {
+    height: 100%;
+    background-color: white;
+    border-radius: 6px;
+    transition: width 0.5s ease;
+}
+
+.financial-summary-banner .progress-text {
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+/* Responsive adjustments for the banner */
+@media (max-width: 768px) {
+    .financial-summary-banner {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: flex-start;
+    }
+    
+    .summary-item {
+        width: 100%;
+    }
+    
+    .financial-summary-banner .progress-text {
+        text-align: left;
+    }
 }

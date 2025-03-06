@@ -170,9 +170,9 @@ function updateDashboard() {
         totalBillsElement.textContent = formatCurrency(totalBills);
     }
 
-    // Use the monthly income from state for calculations
-    const monthlyIncome = state.income.monthly;
-    const billsPercentage = monthlyIncome > 0 ? (totalBills / monthlyIncome) * 100 : 0;
+    // Use the biweekly income from state for calculations
+    const biweeklyIncomeValue = state.income.biweekly;
+    const billsPercentage = biweeklyIncomeValue > 0 ? (totalBills / biweeklyIncomeValue) * 100 : 0;
     
     const progressBar = document.querySelector('.progress');
     if (progressBar) {
@@ -181,7 +181,7 @@ function updateDashboard() {
     
     const progressText = document.querySelector('.progress-text');
     if (progressText) {
-        progressText.textContent = `${billsPercentage.toFixed(1)}% of Monthly Income`;
+        progressText.textContent = `${billsPercentage.toFixed(1)}% of Biweekly Income`;
     }
 
     // Update payments table
