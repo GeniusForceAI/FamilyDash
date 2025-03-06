@@ -55,7 +55,6 @@
         </ul>
     </nav>
 
-    <!-- Main Content -->
     <main class="main-content">
         <!-- Dashboard Page -->
         <div id="dashboard" class="page active">
@@ -64,41 +63,38 @@
                 <div class="date-display"></div>
             </div>
 
-            <div class="grid-container">
+            <div class="dashboard-grid">
                 <!-- Income Summary -->
-                <div class="floating-card">
+                <div class="card income-summary">
+                    <div class="card-header">
+                        <h2>Income Summary</h2>
+                        <button class="action-button">
+                            <i class="fas fa-pencil"></i>
+                        </button>
+                    </div>
                     <div class="card-content">
-                        <div class="card-header">
-                            <h2>Income Summary</h2>
-                            <button class="edit-button" onclick="editIncome()">
-                                <i class="fas fa-edit"></i>
-                            </button>
+                        <div class="income-item">
+                            <span>Biweekly</span>
+                            <span id="biweeklyIncome">$0.00</span>
                         </div>
-                        <div class="income-details">
-                            <div class="income-item">
-                                <span>Biweekly</span>
-                                <span id="biweeklyIncome" class="amount">$0.00</span>
-                            </div>
-                            <div class="income-item">
-                                <span>Monthly</span>
-                                <span id="monthlyIncome" class="amount">$0.00</span>
-                            </div>
+                        <div class="income-item">
+                            <span>Monthly</span>
+                            <span id="monthlyIncome">$0.00</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Bills Summary -->
-                <div class="floating-card">
+                <div class="card bills-summary">
+                    <div class="card-header">
+                        <h2>Bills Summary</h2>
+                        <button class="action-button" id="addBillBtn">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
                     <div class="card-content">
-                        <div class="card-header">
-                            <h2>Bills Summary</h2>
-                            <button class="action-button" onclick="openModal()">
-                                <i class="fas fa-plus"></i>
-                                Add Bill
-                            </button>
-                        </div>
                         <div class="table-container">
-                            <table>
+                            <table class="data-table">
                                 <thead>
                                     <tr>
                                         <th>Name</th>
@@ -107,37 +103,36 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="billsTableBody"></tbody>
+                                <tbody id="billsTableBody">
+                                </tbody>
                             </table>
+                        </div>
+                        <div class="bills-total">
+                            <span>Total Bills:</span>
+                            <span id="totalBills">$0.00</span>
                         </div>
                         <div class="bills-progress">
                             <div class="progress-bar">
-                                <div class="progress" style="width: 0%"></div>
+                                <div class="progress"></div>
                             </div>
-                            <div class="progress-text">0% of Monthly Income</div>
+                            <span class="progress-text">0% of Monthly Income</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Monthly Payments -->
-                <div class="floating-card">
+                <!-- Payment Stats -->
+                <div class="card payment-stats">
+                    <div class="card-header">
+                        <h2>Payment Statistics</h2>
+                    </div>
                     <div class="card-content">
-                        <div class="card-header">
-                            <h2>Monthly Payments</h2>
-                            <button class="action-button" id="addPaymentBtn">
-                                <i class="fas fa-plus"></i>
-                                Add Payment
-                            </button>
+                        <div class="stat-item">
+                            <span>Total Payments This Month</span>
+                            <span id="totalPayments">$0.00</span>
                         </div>
-                        <div class="payment-stats">
-                            <div class="stat-item">
-                                <span>Total Payments</span>
-                                <span id="totalPayments" class="amount">$0.00</span>
-                            </div>
-                            <div class="stat-item">
-                                <span>Remaining Budget</span>
-                                <span id="remainingBudget" class="amount">$0.00</span>
-                            </div>
+                        <div class="stat-item">
+                            <span>Remaining Budget</span>
+                            <span id="remainingBudget">$0.00</span>
                         </div>
                     </div>
                 </div>
@@ -153,10 +148,10 @@
                     Add Payment
                 </button>
             </div>
-            <div class="floating-card">
+            <div class="card">
                 <div class="card-content">
                     <div class="table-container">
-                        <table>
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Date</th>
@@ -166,7 +161,8 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="paymentsTableBody"></tbody>
+                            <tbody id="paymentsTableBody">
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -176,16 +172,16 @@
         <!-- Bills Page -->
         <div id="bills" class="page">
             <div class="page-header">
-                <h1>Manage Bills</h1>
-                <button class="action-button" onclick="openModal()">
+                <h1>Bills Management</h1>
+                <button class="action-button" id="addBillBtn2">
                     <i class="fas fa-plus"></i>
                     Add Bill
                 </button>
             </div>
-            <div class="floating-card">
+            <div class="card">
                 <div class="card-content">
                     <div class="table-container">
-                        <table>
+                        <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Name</th>
@@ -194,7 +190,8 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="billsTableBody2"></tbody>
+                            <tbody id="billsTableBody2">
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -206,83 +203,60 @@
             <div class="page-header">
                 <h1>Settings</h1>
             </div>
-            <div class="floating-card">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Application Settings</h2>
+                </div>
                 <div class="card-content">
-                    <h2>Theme Preferences</h2>
-                    <p>Toggle between light and dark mode using the theme button in the top right corner.</p>
+                    <div class="settings-group">
+                        <h3>Theme</h3>
+                        <p>Toggle between light and dark mode using the button in the top-right corner.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Add/Edit Bill Modal -->
-    <div id="modal" class="modal">
-        <div class="modal-content floating-card">
-            <div class="card-content">
-                <h2>Add New Bill</h2>
-                <form id="billForm">
-                    <div class="form-group">
-                        <label for="billName">Bill Name</label>
-                        <input type="text" id="billName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="billAmount">Amount</label>
-                        <input type="number" id="billAmount" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="billCategory">Category</label>
-                        <select id="billCategory" required>
-                            <option value="Housing">Housing</option>
-                            <option value="Utilities">Utilities</option>
-                            <option value="Transportation">Transportation</option>
-                            <option value="Insurance">Insurance</option>
-                            <option value="Entertainment">Entertainment</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div class="button-group">
-                        <button type="submit" class="action-button">Save Bill</button>
-                        <button type="button" class="cancel-button" onclick="closeModal()">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Payment Modal -->
+    <!-- Payment Modal -->
     <div id="paymentModal" class="modal">
-        <div class="modal-content floating-card">
-            <div class="card-content">
-                <h2>Add New Payment</h2>
-                <form id="paymentForm">
-                    <div class="form-group">
-                        <label for="paymentDate">Date</label>
-                        <input type="date" id="paymentDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="paymentDescription">Description</label>
-                        <input type="text" id="paymentDescription" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="paymentCategory">Category</label>
-                        <select id="paymentCategory" required>
-                            <option value="Food">Food</option>
-                            <option value="Transportation">Transportation</option>
-                            <option value="Entertainment">Entertainment</option>
-                            <option value="Shopping">Shopping</option>
-                            <option value="Healthcare">Healthcare</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="paymentAmount">Amount</label>
-                        <input type="number" id="paymentAmount" step="0.01" required>
-                    </div>
-                    <div class="button-group">
-                        <button type="submit" class="action-button">Save Payment</button>
-                        <button type="button" class="cancel-button" onclick="closePaymentModal()">Cancel</button>
-                    </div>
-                </form>
+        <div class="modal-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Add Payment</h2>
+                    <button class="close-button" onclick="closePaymentModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <form id="paymentForm">
+                        <div class="form-group">
+                            <label for="paymentDate">Date</label>
+                            <input type="date" id="paymentDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentDescription">Description</label>
+                            <input type="text" id="paymentDescription" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentCategory">Category</label>
+                            <select id="paymentCategory" required>
+                                <option value="Housing">Housing</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Insurance">Insurance</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentAmount">Amount</label>
+                            <input type="number" id="paymentAmount" step="0.01" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="action-button">Add Payment</button>
+                            <button type="button" class="cancel-button" onclick="closePaymentModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
