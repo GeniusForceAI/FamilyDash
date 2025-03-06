@@ -118,7 +118,7 @@ function updateThemeIcon() {
 // Data Management
 async function loadData() {
     try {
-        const response = await fetch('http://localhost:3000/api/finances');
+        const response = await fetch('/api/finances');
         if (!response.ok) throw new Error('Failed to load data');
         const data = await response.json();
         
@@ -135,7 +135,7 @@ async function loadData() {
 
 async function saveData() {
     try {
-        const response = await fetch('http://localhost:3000/api/finances', {
+        const response = await fetch('/api/finances', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

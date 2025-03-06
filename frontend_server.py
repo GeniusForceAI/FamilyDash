@@ -16,6 +16,13 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=".", **kwargs)
 
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+
     def do_GET(self):
         # Handle API requests
         if self.path.startswith('/api/'):
@@ -45,13 +52,21 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             body = self.rfile.read(content_length) if content_length > 0 else None
 
             # Create request
+            headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Origin': 'http://localhost:3001'
+            }
+            
+            if body:
+                headers['Content-Length'] = str(len(body))
+
+            # Create request
             req = urllib.request.Request(
                 api_url,
                 data=body,
                 method=method,
-                headers={
-                    'Content-Type': 'application/json'
-                } if body else {}
+                headers=headers
             )
 
             # Forward request to API server
@@ -60,6 +75,8 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_response(response.status)
                 self.send_header('Content-Type', response.headers.get('Content-Type', 'application/json'))
                 self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
                 self.end_headers()
 
                 # Copy response body
@@ -75,7 +92,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         logger.info(format % args)
 
-def run_server(port=3001):
+def run_server(port=3000):
     with socketserver.TCPServer(("", port), RequestHandler) as httpd:
         logger.info(f"Starting frontend server on http://localhost:{port}")
         try:
