@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baker Family Finances - Cyberpunk Edition</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="dark-mode">
+    <div class="theme-toggle">
+        <button id="themeToggle">
+            <span class="toggle-icon">🌓</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <header class="glitch-header">
+            <h1 data-text="Baker Family Finances">Baker Family Finances</h1>
+        </header>
+
+        <div class="income-card floating-card">
+            <div class="card-content">
+                <h2>Income Overview</h2>
+                <div class="income-details">
+                    <div class="income-item">
+                        <span>Biweekly:</span>
+                        <div class="editable-amount">
+                            <span class="amount" id="biweeklyIncome">$27,779.75</span>
+                            <button class="edit-button" onclick="editIncome('biweekly')">✏️</button>
+                        </div>
+                    </div>
+                    <div class="income-item">
+                        <span>Monthly:</span>
+                        <div class="editable-amount">
+                            <span class="amount" id="monthlyIncome">$55,559.50</span>
+                            <button class="edit-button" onclick="editIncome('monthly')">✏️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bills-section floating-card">
+            <div class="card-content">
+                <h2>Monthly Bills</h2>
+                <div class="bills-table-container">
+                    <table id="billsTable">
+                        <thead>
+                            <tr>
+                                <th>Bill</th>
+                                <th>Amount</th>
+                                <th>Category</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="billsTableBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td>Total</td>
+                                <td id="totalBills" colspan="3"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="add-bill-section floating-card">
+            <div class="card-content">
+                <h2>Add New Bill</h2>
+                <form id="addBillForm">
+                    <div class="form-group">
+                        <input type="text" id="billName" placeholder="Bill Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="number" id="billAmount" placeholder="Amount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <select id="billCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="Housing">Housing</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Insurance">Insurance</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="cyber-button">Add Bill</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content floating-card">
+            <h2>Edit Value</h2>
+            <form id="editForm">
+                <div class="form-group">
+                    <input type="number" id="editAmount" step="0.01" required>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="cyber-button">Save</button>
+                    <button type="button" class="cyber-button cancel" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

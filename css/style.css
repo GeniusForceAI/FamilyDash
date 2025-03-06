@@ -1,0 +1,365 @@
+:root {
+    /* Dark theme variables */
+    --dark-bg: #0a0a1f;
+    --dark-card-bg: #1a1a3f;
+    --dark-text: #e0e0ff;
+    --dark-accent: #00ff9d;
+    --dark-secondary: #ff00ff;
+    
+    /* Light theme variables */
+    --light-bg: #f0f0ff;
+    --light-card-bg: #ffffff;
+    --light-text: #1a1a3f;
+    --light-accent: #00805e;
+    --light-secondary: #8b008b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Orbitron', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+    padding: 2rem;
+}
+
+body.dark-mode {
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+}
+
+body.light-mode {
+    background-color: var(--light-bg);
+    color: var(--light-text);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+#themeToggle {
+    background: none;
+    border: 2px solid;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: transform 0.3s;
+}
+
+.dark-mode #themeToggle {
+    border-color: var(--dark-accent);
+    color: var(--dark-accent);
+}
+
+.light-mode #themeToggle {
+    border-color: var(--light-accent);
+    color: var(--light-accent);
+}
+
+#themeToggle:hover {
+    transform: scale(1.1);
+}
+
+.glitch-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.glitch-header h1 {
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+}
+
+.dark-mode .glitch-header h1::before {
+    content: attr(data-text);
+    position: absolute;
+    left: -2px;
+    text-shadow: 2px 0 var(--dark-secondary);
+    top: 0;
+    color: var(--dark-text);
+    overflow: hidden;
+    clip: rect(0, 900px, 0, 0);
+    animation: glitch-effect 3s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-effect {
+    0% {
+        clip: rect(44px, 9999px, 56px, 0);
+    }
+    5% {
+        clip: rect(12px, 9999px, 33px, 0);
+    }
+    10% {
+        clip: rect(62px, 9999px, 82px, 0);
+    }
+    15% {
+        clip: rect(32px, 9999px, 78px, 0);
+    }
+    20% {
+        clip: rect(48px, 9999px, 36px, 0);
+    }
+    100% {
+        clip: rect(0, 0, 0, 0);
+    }
+}
+
+.floating-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    transform: translateY(0);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.dark-mode .floating-card {
+    background: var(--dark-card-bg);
+    box-shadow: 0 8px 32px rgba(0, 255, 157, 0.1);
+}
+
+.light-mode .floating-card {
+    background: var(--light-card-bg);
+    box-shadow: 0 8px 32px rgba(0, 128, 94, 0.1);
+}
+
+.floating-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+.floating-card:hover {
+    transform: translateY(-10px);
+}
+
+.floating-card:hover::before {
+    left: 100%;
+}
+
+.card-content {
+    padding: 2rem;
+}
+
+.income-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.income-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.amount {
+    font-weight: bold;
+    color: var(--dark-accent);
+}
+
+.light-mode .amount {
+    color: var(--light-accent);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.light-mode th, .light-mode td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+form {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.form-group {
+    display: grid;
+    gap: 0.5rem;
+}
+
+input, select {
+    width: 100%;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: inherit;
+    font-family: inherit;
+}
+
+.light-mode input, .light-mode select {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.cyber-button {
+    background: none;
+    border: 2px solid var(--dark-accent);
+    color: var(--dark-accent);
+    padding: 0.8rem 1.5rem;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.light-mode .cyber-button {
+    border-color: var(--light-accent);
+    color: var(--light-accent);
+}
+
+.cyber-button:hover {
+    background: var(--dark-accent);
+    color: var(--dark-bg);
+}
+
+.light-mode .cyber-button:hover {
+    background: var(--light-accent);
+    color: var(--light-bg);
+}
+
+.editable-amount {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.edit-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.2rem;
+    border-radius: 4px;
+    transition: transform 0.2s;
+    opacity: 0.7;
+}
+
+.edit-button:hover {
+    transform: scale(1.2);
+    opacity: 1;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 400px;
+    padding: 2rem;
+}
+
+.modal-content h2 {
+    margin-bottom: 1.5rem;
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.cyber-button.cancel {
+    border-color: var(--dark-secondary);
+    color: var(--dark-secondary);
+}
+
+.light-mode .cyber-button.cancel {
+    border-color: var(--light-secondary);
+    color: var(--light-secondary);
+}
+
+.cyber-button.cancel:hover {
+    background: var(--dark-secondary);
+    color: var(--dark-bg);
+}
+
+.light-mode .cyber-button.cancel:hover {
+    background: var(--light-secondary);
+    color: var(--light-bg);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.edit-cell {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.edit-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    padding: 0.3rem;
+    border-radius: 4px;
+    color: inherit;
+    font-family: inherit;
+    width: 100px;
+}
+
+.light-mode .edit-input {
+    background: rgba(0, 0, 0, 0.05);
+}
