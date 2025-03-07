@@ -60,11 +60,23 @@ function initializeApp() {
     if (addPaymentBtn) {
         addPaymentBtn.addEventListener('click', openPaymentModal);
     }
+    
+    // Add secondary payment button handler
+    const addPaymentBtn2 = document.getElementById('addPaymentBtn2');
+    if (addPaymentBtn2) {
+        addPaymentBtn2.addEventListener('click', openPaymentModal);
+    }
 
     // Add bill button handlers
     const addBillBtn = document.getElementById('addBillBtn');
     if (addBillBtn) {
         addBillBtn.addEventListener('click', openBillModal);
+    }
+    
+    // Add secondary bill button handler
+    const addBillBtn2 = document.getElementById('addBillBtn2');
+    if (addBillBtn2) {
+        addBillBtn2.addEventListener('click', openBillModal);
     }
     
     // Edit income button handler
@@ -219,6 +231,26 @@ function formatCurrency(amount) {
 function openPaymentModal() {
     const modal = document.getElementById('paymentModal');
     if (modal) {
+        // Reset form for adding a new payment
+        const form = document.getElementById('paymentForm');
+        if (form) form.reset();
+        
+        // Set default date to today
+        const dateInput = document.getElementById('paymentDate');
+        if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+        
+        // Reset edit mode
+        const editModeInput = document.getElementById('paymentEditMode');
+        if (editModeInput) editModeInput.value = 'add';
+        
+        const originalDateInput = document.getElementById('paymentOriginalDate');
+        if (originalDateInput) originalDateInput.value = '';
+        
+        // Update submit button text
+        const submitBtn = document.getElementById('paymentSubmitBtn');
+        if (submitBtn) submitBtn.textContent = 'Add Payment';
+        
+        // Display modal
         modal.style.display = 'flex';
     }
 }
@@ -236,6 +268,25 @@ function closePaymentModal() {
 function openBillModal() {
     const modal = document.getElementById('billModal');
     if (modal) {
+        // Reset form for adding a new bill
+        const form = document.getElementById('billForm');
+        if (form) form.reset();
+        
+        // Reset edit mode
+        const editModeInput = document.getElementById('billEditMode');
+        if (editModeInput) editModeInput.value = 'add';
+        
+        const originalNameInput = document.getElementById('billOriginalName');
+        if (originalNameInput) originalNameInput.value = '';
+        
+        // Update modal title and submit button text
+        const modalTitle = document.getElementById('billModalTitle');
+        if (modalTitle) modalTitle.textContent = 'Add Bill';
+        
+        const submitBtn = document.getElementById('billSubmitBtn');
+        if (submitBtn) submitBtn.textContent = 'Add Bill';
+        
+        // Display modal
         modal.style.display = 'flex';
     }
 }
@@ -336,41 +387,27 @@ function editPayment(paymentDate) {
     const descriptionInput = document.getElementById('paymentDescription');
     const categorySelect = document.getElementById('paymentCategory');
     const amountInput = document.getElementById('paymentAmount');
+    const editModeInput = document.getElementById('paymentEditMode');
+    const originalDateInput = document.getElementById('paymentOriginalDate');
+    const submitBtn = document.getElementById('paymentSubmitBtn');
     
     if (dateInput) dateInput.value = payment.date;
     if (descriptionInput) descriptionInput.value = payment.description;
     if (categorySelect) categorySelect.value = payment.category;
     if (amountInput) amountInput.value = payment.amount;
+    if (editModeInput) editModeInput.value = 'edit';
+    if (originalDateInput) originalDateInput.value = payment.date;
     
     // Update modal title and button
     const modalTitle = document.querySelector('#paymentModal .card-header h2');
-    const submitBtn = document.querySelector('#paymentForm button[type="submit"]');
-    
     if (modalTitle) modalTitle.textContent = 'Edit Payment';
     if (submitBtn) submitBtn.textContent = 'Update Payment';
     
-    // Add hidden field for edit mode if it doesn't exist
-    let editModeInput = document.getElementById('paymentEditMode');
-    if (!editModeInput) {
-        editModeInput = document.createElement('input');
-        editModeInput.type = 'hidden';
-        editModeInput.id = 'paymentEditMode';
-        document.getElementById('paymentForm').appendChild(editModeInput);
-    }
-    editModeInput.value = 'edit';
-    
-    // Add hidden field for original date if it doesn't exist
-    let originalDateInput = document.getElementById('paymentOriginalDate');
-    if (!originalDateInput) {
-        originalDateInput = document.createElement('input');
-        originalDateInput.type = 'hidden';
-        originalDateInput.id = 'paymentOriginalDate';
-        document.getElementById('paymentForm').appendChild(originalDateInput);
-    }
-    originalDateInput.value = payment.date;
-    
     // Open the modal
-    openPaymentModal();
+    const modal = document.getElementById('paymentModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
 }
 
 // Delete functions

@@ -258,8 +258,10 @@
                             <label for="paymentAmount">Amount</label>
                             <input type="number" id="paymentAmount" step="0.01" required>
                         </div>
+                        <input type="hidden" id="paymentEditMode" value="add">
+                        <input type="hidden" id="paymentOriginalDate" value="">
                         <div class="form-actions">
-                            <button type="submit" class="action-button">Add Payment</button>
+                            <button type="submit" class="action-button" id="paymentSubmitBtn">Add Payment</button>
                             <button type="button" class="cancel-button" onclick="closePaymentModal()">Cancel</button>
                         </div>
                     </form>
