@@ -124,35 +124,46 @@
     <!-- Bill Modal -->
     <div id="billModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>Add Bill</h2>
-                <button class="close-button">&times;</button>
+            <div class="card">
+                <div class="card-header">
+                    <h2 id="billModalTitle">Add Bill</h2>
+                    <button class="close-button" onclick="closeBillModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <form id="billForm">
+                        <div class="form-group">
+                            <label for="billName">Name</label>
+                            <input type="text" id="billName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="billCategory">Category</label>
+                            <select id="billCategory" required>
+                                <option value="Housing">Housing</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Insurance">Insurance</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="billAmount">Amount</label>
+                            <input type="number" id="billAmount" step="0.01" required>
+                        </div>
+                        <input type="hidden" id="billEditMode" value="add">
+                        <input type="hidden" id="billOriginalName" value="">
+                        <div class="form-actions">
+                            <button type="submit" class="action-button" id="billSubmitBtn">Add Bill</button>
+                            <button type="button" class="cancel-button" onclick="closeBillModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <form id="billForm">
-                <div class="form-group">
-                    <label for="billName">Bill Name</label>
-                    <input type="text" id="billName" required>
-                </div>
-                <div class="form-group">
-                    <label for="billAmount">Amount</label>
-                    <input type="number" id="billAmount" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="billCategory">Category</label>
-                    <input type="text" id="billCategory" required>
-                </div>
-                <div class="form-group">
-                    <label for="billDueDate">Due Date</label>
-                    <input type="date" id="billDueDate" required>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="primary-button">Add Bill</button>
-                    <button type="button" class="secondary-button" onclick="closeBillModal()">Cancel</button>
-                </div>
-            </form>
         </div>
     </div>
 
+    <script src="../js/config.js"></script>
     <script src="../js/app.js"></script>
 </body>
 </html>

@@ -140,32 +140,46 @@
     <!-- Payment Modal -->
     <div id="paymentModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>Add Payment</h2>
-                <button class="close-button">&times;</button>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Add Payment</h2>
+                    <button class="close-button" onclick="closePaymentModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <form id="paymentForm">
+                        <div class="form-group">
+                            <label for="paymentDate">Date</label>
+                            <input type="date" id="paymentDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentDescription">Description</label>
+                            <input type="text" id="paymentDescription" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentCategory">Category</label>
+                            <select id="paymentCategory" required>
+                                <option value="Housing">Housing</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Insurance">Insurance</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentAmount">Amount</label>
+                            <input type="number" id="paymentAmount" step="0.01" required>
+                        </div>
+                        <input type="hidden" id="paymentEditMode" value="add">
+                        <input type="hidden" id="paymentOriginalDate" value="">
+                        <div class="form-actions">
+                            <button type="submit" class="action-button" id="paymentSubmitBtn">Add Payment</button>
+                            <button type="button" class="cancel-button" onclick="closePaymentModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <form id="paymentForm">
-                <div class="form-group">
-                    <label for="paymentDate">Date</label>
-                    <input type="date" id="paymentDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="paymentDescription">Description</label>
-                    <input type="text" id="paymentDescription" required>
-                </div>
-                <div class="form-group">
-                    <label for="paymentCategory">Category</label>
-                    <input type="text" id="paymentCategory" required>
-                </div>
-                <div class="form-group">
-                    <label for="paymentAmount">Amount</label>
-                    <input type="number" id="paymentAmount" step="0.01" required>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="primary-button">Add Payment</button>
-                    <button type="button" class="secondary-button" onclick="closePaymentModal()">Cancel</button>
-                </div>
-            </form>
         </div>
     </div>
 

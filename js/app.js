@@ -1,5 +1,7 @@
-// Domain for API calls
-const domain = "http://localhost:8000";
+// Domain for API calls - using config from config.js
+const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8000/api'
+    : 'https://baker-finances-backend.up.railway.app/api';
 
 // State Management
 let state = {
@@ -106,7 +108,7 @@ function initializeApp() {
 async function loadFinancialData() {
     try {
         console.log('Fetching financial data from /api/finances...');
-        const response = await fetch(`${domain}/api/finances`, {
+        const response = await fetch(`${apiBaseUrl}/finances`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -440,7 +442,7 @@ async function updateFinancialData() {
     };
     
     try {
-        const response = await fetch(`${domain}/api/finances`, {
+        const response = await fetch(`${apiBaseUrl}/finances`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
