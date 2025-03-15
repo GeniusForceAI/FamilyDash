@@ -7,3 +7,7 @@ startCommand = "uvicorn server:app --host 0.0.0.0 --port $PORT"
 restartPolicyType = "ON_FAILURE"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
+
+[env]
+MONGODB_USER = "$MONGODB_USER"
+MONGODB_PASSWORD = "$MONGODB_PASSWORD"
