@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FamilyDash - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            background: var(--dark-card-bg);
+            max-width: 400px;
+            width: 90%;
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--dark-border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .login-container h2 {
+            color: var(--dark-text);
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark-text);
+            font-weight: 500;
+        }
+        .input-group {
+            position: relative;
+        }
+        .input-group i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-text);
+            opacity: 0.7;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.5rem;
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            background-color: var(--dark-card-bg);
+            color: var(--dark-text);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--dark-accent);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+        }
+        .error-message {
+            color: var(--dark-error);
+            margin-top: 0.75rem;
+            display: none;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--dark-accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-login:hover {
+            background: var(--dark-secondary);
+        }
+        .btn-login:active {
+            transform: translateY(1px);
+        }
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .btn-login i {
+            font-size: 1rem;
+        }
+        
+        /* Light mode support */
+        body.light-mode {
+            background-color: var(--light-bg);
+            color: var(--light-text);
+        }
+        .light-mode .login-container {
+            background: var(--light-card-bg);
+            border-color: var(--light-border);
+        }
+        .light-mode .login-container h2 {
+            color: var(--light-text);
+        }
+        .light-mode .form-group label {
+            color: var(--light-text);
+        }
+        .light-mode .input-group input {
+            background-color: var(--light-card-bg);
+            border-color: var(--light-border);
+            color: var(--light-text);
+        }
+        .light-mode .input-group i {
+            color: var(--light-text);
+        }
+        .light-mode .input-group input:focus {
+            border-color: var(--light-accent);
+        }
+        .light-mode .error-message {
+            color: var(--light-error);
+        }
+        .light-mode .btn-login {
+            background: var(--light-accent);
+        }
+        .light-mode .btn-login:hover {
+            background: var(--light-secondary);
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="login-container">
+        <h2>Login to FamilyDash</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" required autocomplete="email" placeholder="Enter your email" value="admin@familydash.com">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Enter your password" value="admin123">
+                </div>
+            </div>
+            <div class="error-message" id="errorMessage"></div>
+            <button type="submit" class="btn-login" id="loginButton">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { auth } from '../js/auth.js';
+        
+        // Debug auth module loading
+        console.log('Auth module loaded:', auth);
+        
+        // Handle form submission
+        const form = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const loginButton = document.getElementById('loginButton');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log('Form submitted');
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            // Clear previous error
+            errorMessage.style.display = 'none';
+            loginButton.disabled = true;
+            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            
+            try {
+                await auth.login(email, password);
+                console.log('Login successful, redirecting...');
+                window.location.replace(auth.getHomePath());
+            } catch (error) {
+                console.error('Login failed:', error);
+                errorMessage.textContent = error.message || 'Login failed. Please try again.';
+                errorMessage.style.display = 'block';
+                loginButton.disabled = false;
+                loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            }
+        });
+    </script>
+</body>
+</html>

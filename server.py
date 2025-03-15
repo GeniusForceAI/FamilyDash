@@ -1,16 +1,26 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from datetime import datetime
+from fastapi.security import OAuth2PasswordRequestForm
+from datetime import datetime, timedelta
 import logging
 from pathlib import Path
 from dotenv import load_dotenv
+import os
 
 # Load environment variables from .env file
 load_dotenv()
 
 from app.DataAccessLayer.finance_dao import FinanceDAO
+from app.DataAccessLayer.user_dao import UserDAO
 from app.models.financial_models import Income, Bill, Transaction
+from app.models.user_models import UserCreate, User
+from app.auth.auth_utils import (
+    create_access_token,
+    get_current_user,
+    get_current_active_admin,
+    ACCESS_TOKEN_EXPIRE_MINUTES
+)
 
 # Configure logging
 logging.basicConfig(
@@ -25,21 +35,61 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Add CORS middleware to allow requests from frontend
+# Configure CORS
+origins = [
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
+    "http://127.0.0.1:5000",
+    "http://localhost:5000",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+    "http://127.0.0.1",
+    "http://localhost",
+    "https://geniusforceai.github.io"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://geniusforceai.github.io",  # Your GitHub Pages domain
-        "http://localhost:3000",           # Local development
-        "*"  # Allow all origins during development - remove in production
-    ],
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all methods
-    allow_headers=["*"],  # Allow all headers
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
-# Initialize DAO
+# Initialize DAOs
 finance_dao = FinanceDAO()
+user_dao = UserDAO()
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Initializing admin user...")
+    await user_dao.init_admin()
+    logger.info("Server startup complete")
+
+# Authentication endpoints
+@app.post("/token")
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    logger.info(f"Login attempt for user: {form_data.username}")
+    user = await user_dao.authenticate_user(form_data.username, form_data.password)
+    if not user:
+        logger.warning(f"Failed login attempt for user: {form_data.username}")
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect email or password"
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
+    logger.info(f"Successful login for user: {form_data.username}")
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@app.post("/api/users/register", response_model=User)
+async def register_user(user: UserCreate, current_user: User = Depends(get_current_active_admin)):
+    db_user = await user_dao.get_user_by_email(user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    return await user_dao.create_user(user)
 
 # Root endpoint
 @app.get("/")
@@ -53,25 +103,29 @@ async def root():
         "status": "running",
         "endpoints": [
             "/",
-            "/health",
+            "/api/health",
             "/api/finances"
         ]
     }
 
 # Health check endpoint
-@app.get("/health")
+@app.get("/api/health")
 async def health_check():
     """
     Health check endpoint for Railway
     """
     return JSONResponse(
         status_code=200,
-        content={"status": "healthy", "timestamp": datetime.now().isoformat()}
+        content={
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "version": "1.0.0"
+        }
     )
 
-# API Routes
+# Protected API Routes
 @app.get("/api/finances", tags=["Financial Data"])
-async def get_financial_data():
+async def get_financial_data(current_user: User = Depends(get_current_user)):
     """
     Retrieve the current financial data including income and bills
     """
@@ -84,14 +138,14 @@ async def get_financial_data():
         return {
             "income": income,
             "bills": bills,
-            "payments": transactions  # Note: we're using transactions but mapping to 'payments' for frontend compatibility
+            "payments": transactions
         }
     except Exception as e:
         logger.error("Error loading financial data: %s", str(e))
         raise HTTPException(status_code=500, detail="Error loading financial data")
 
 @app.post("/api/finances", tags=["Financial Data"])
-async def update_financial_data(data: dict):
+async def update_financial_data(data: dict, current_user: User = Depends(get_current_user)):
     """
     Update the financial data with new income or bill information
     """
@@ -140,6 +194,7 @@ async def update_financial_data(data: dict):
 @app.on_event("shutdown")
 async def shutdown_event():
     finance_dao.close()
+    user_dao.close()
 
 if __name__ == "__main__":
     import uvicorn
