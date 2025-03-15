@@ -2,6 +2,11 @@
 
 Hey there, tech enthusiasts! 👋 Today, I'm going to share an incredible journey of building and deploying a full-stack financial dashboard application using AI assistance. The twist? We did it all in under 2 hours! Let's dive into how we leveraged Windsurf AI to create a modern web app with a FastAPI backend and a sleek vanilla JavaScript frontend.
 
+<div align="center">
+  <img src="../diagrams/ai_collaboration.svg" alt="AI-Human Collaboration Flow" width="800" />
+  <p><em>The Cyberpunk Dance: AI and Human Collaboration in Modern Development</em></p>
+</div>
+
 ## TL;DR Takeaways 🚀
 
 - AI is best used as a pair programmer that understands system design
@@ -12,6 +17,11 @@ Hey there, tech enthusiasts! 👋 Today, I'm going to share an incredible journe
 
 ## The Stack 🛠️
 
+<div align="center">
+  <img src="../diagrams/architecture.svg" alt="System Architecture" width="800" />
+  <p><em>Neon-lit Architecture: Our Full-Stack System Design</em></p>
+</div>
+
 - **Frontend**: Vanilla JavaScript, HTML5, CSS3
 - **Backend**: FastAPI (Python 3.12)
 - **Database**: MongoDB
@@ -20,6 +30,11 @@ Hey there, tech enthusiasts! 👋 Today, I'm going to share an incredible journe
 - **AI Assistant**: Windsurf IDE with Cascade
 
 ## The Development Workflow 🔄
+
+<div align="center">
+  <img src="../diagrams/cicd.svg" alt="CI/CD Pipeline" width="800" />
+  <p><em>The Digital Pipeline: Automated Deployment Flow</em></p>
+</div>
 
 ### 1. Setting Up the Project Structure (10 minutes)
 

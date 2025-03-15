@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @keyframes neonGlow {
+      0% { stroke: #0ff; filter: drop-shadow(0 0 2px #0ff); }
+      50% { stroke: #f0f; filter: drop-shadow(0 0 5px #f0f); }
+      100% { stroke: #0ff; filter: drop-shadow(0 0 2px #0ff); }
+    }
+    @keyframes dataFlow {
+      from { stroke-dashoffset: 1000; }
+      to { stroke-dashoffset: 0; }
+    }
+    .neon { animation: neonGlow 3s infinite; }
+    .data-line {
+      stroke-dasharray: 10;
+      animation: dataFlow 10s linear infinite;
+    }
+    text { font-family: 'Courier New', monospace; }
+    .glow { filter: drop-shadow(0 0 3px #0ff); }
+  </style>
+  
+  <!-- Frontend Node -->
+  <g transform="translate(100,100)">
+    <rect x="0" y="0" width="200" height="100" fill="none" stroke="#0ff" stroke-width="2" class="neon"/>
+    <text x="100" y="50" fill="#0ff" text-anchor="middle" class="glow">Frontend (GitHub Pages)
+      <tspan x="100" y="70">HTML/CSS/JS</tspan>
+    </text>
+  </g>
+
+  <!-- Backend Node -->
+  <g transform="translate(500,100)">
+    <rect x="0" y="0" width="200" height="100" fill="none" stroke="#f0f" stroke-width="2" class="neon"/>
+    <text x="100" y="50" fill="#f0f" text-anchor="middle" class="glow">Backend (Railway)
+      <tspan x="100" y="70">FastAPI/Python</tspan>
+    </text>
+  </g>
+
+  <!-- Database Node -->
+  <g transform="translate(500,400)">
+    <rect x="0" y="0" width="200" height="100" fill="none" stroke="#0f0" stroke-width="2" class="neon"/>
+    <text x="100" y="50" fill="#0f0" text-anchor="middle" class="glow">Database
+      <tspan x="100" y="70">MongoDB</tspan>
+    </text>
+  </g>
+
+  <!-- User Node -->
+  <g transform="translate(100,400)">
+    <circle cx="100" cy="50" r="50" fill="none" stroke="#ff0" stroke-width="2" class="neon"/>
+    <text x="100" y="50" fill="#ff0" text-anchor="middle" class="glow">User
+      <tspan x="100" y="70">Browser</tspan>
+    </text>
+  </g>
+
+  <!-- Connection Lines -->
+  <g>
+    <line x1="300" y1="150" x2="500" y2="150" stroke="#0ff" stroke-width="2" class="data-line"/>
+    <line x1="600" y1="200" x2="600" y2="400" stroke="#f0f" stroke-width="2" class="data-line"/>
+    <line x1="200" y1="450" x2="100" y2="200" stroke="#ff0" stroke-width="2" class="data-line"/>
+  </g>
+</svg>

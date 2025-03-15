@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @keyframes neonPulse {
+      0% { stroke: #0ff; filter: drop-shadow(0 0 2px #0ff); }
+      50% { stroke: #f0f; filter: drop-shadow(0 0 5px #f0f); }
+      100% { stroke: #0ff; filter: drop-shadow(0 0 2px #0ff); }
+    }
+    @keyframes codeFlow {
+      from { stroke-dashoffset: 1000; }
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes buildPulse {
+      0% { fill: #0f0; }
+      50% { fill: #00f; }
+      100% { fill: #0f0; }
+    }
+    .neon { animation: neonPulse 3s infinite; }
+    .flow { 
+      stroke-dasharray: 10;
+      animation: codeFlow 8s linear infinite;
+    }
+    .build-indicator {
+      animation: buildPulse 2s infinite;
+    }
+    text { 
+      font-family: 'Courier New', monospace;
+      fill: #fff;
+      filter: drop-shadow(0 0 2px #0ff);
+    }
+  </style>
+
+  <!-- GitHub Repository -->
+  <g transform="translate(50,50)">
+    <rect x="0" y="0" width="150" height="80" fill="none" stroke="#0ff" stroke-width="2" class="neon"/>
+    <text x="75" y="45" text-anchor="middle">GitHub Repo</text>
+  </g>
+
+  <!-- GitHub Actions -->
+  <g transform="translate(300,50)">
+    <polygon points="0,0 150,0 130,80 20,80" fill="none" stroke="#f0f" stroke-width="2" class="neon"/>
+    <text x="75" y="45" text-anchor="middle">GitHub Actions</text>
+  </g>
+
+  <!-- Frontend Pipeline -->
+  <g transform="translate(50,200)">
+    <rect x="0" y="0" width="700" height="100" fill="none" stroke="#0ff" stroke-width="2" class="neon"/>
+    <circle cx="100" cy="50" r="5" class="build-indicator"/>
+    <text x="350" y="30" text-anchor="middle">Frontend Pipeline</text>
+    <text x="100" y="70" text-anchor="middle" font-size="12">Build</text>
+    <text x="300" y="70" text-anchor="middle" font-size="12">Test</text>
+    <text x="500" y="70" text-anchor="middle" font-size="12">Deploy to Pages</text>
+  </g>
+
+  <!-- Backend Pipeline -->
+  <g transform="translate(50,400)">
+    <rect x="0" y="0" width="700" height="100" fill="none" stroke="#f0f" stroke-width="2" class="neon"/>
+    <circle cx="100" cy="50" r="5" class="build-indicator"/>
+    <text x="350" y="30" text-anchor="middle">Backend Pipeline</text>
+    <text x="100" y="70" text-anchor="middle" font-size="12">Build</text>
+    <text x="300" y="70" text-anchor="middle" font-size="12">Test</text>
+    <text x="500" y="70" text-anchor="middle" font-size="12">Deploy to Railway</text>
+  </g>
+
+  <!-- Flow Lines -->
+  <g fill="none" stroke="#0ff" stroke-width="2">
+    <path d="M200,90 L300,90" class="flow"/>
+    <path d="M450,90 L500,200" class="flow"/>
+    <path d="M450,90 L500,400" class="flow"/>
+  </g>
+</svg>
