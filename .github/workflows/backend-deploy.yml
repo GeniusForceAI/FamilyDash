@@ -6,6 +6,7 @@ on:
     paths:
       - 'server.py'
       - 'api/**'
+      - 'app/**'  # Include app directory for MongoDB changes
       - 'requirements.txt'
       - '.github/workflows/backend-deploy.yml'
       - 'railway.toml'
@@ -27,6 +28,9 @@ jobs:
         
       - name: Deploy to Railway
         uses: bervProject/railway-deploy@main
+        env:
+          MONGODB_USER: ${{ secrets.MONGODB_USER }}
+          MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
         with:
           railway_token: ${{ secrets.RAILWAY_TOKEN }}
           service: ${{ secrets.RAILWAY_SERVICE_NAME }}

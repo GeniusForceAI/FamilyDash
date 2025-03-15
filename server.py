@@ -1,13 +1,16 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
-from typing import List, Optional
 from datetime import datetime
-import json
-import os
 import logging
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+from app.DataAccessLayer.finance_dao import FinanceDAO
+from app.models.financial_models import Income, Bill, Transaction
 
 # Configure logging
 logging.basicConfig(
@@ -26,7 +29,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://yourusername.github.io",  # Your GitHub Pages domain
+        "https://geniusforceai.github.io",  # Your GitHub Pages domain
         "http://localhost:3000",           # Local development
         "*"  # Allow all origins during development - remove in production
     ],
@@ -34,6 +37,9 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
 )
+
+# Initialize DAO
+finance_dao = FinanceDAO()
 
 # Root endpoint
 @app.get("/")
@@ -63,77 +69,77 @@ async def health_check():
         content={"status": "healthy", "timestamp": datetime.now().isoformat()}
     )
 
-# Data Models
-class Bill(BaseModel):
-    name: str = Field(..., description="Name of the bill")
-    amount: float = Field(..., description="Amount of the bill")
-    category: str = Field(..., description="Category of the bill (e.g., Housing, Transportation)")
-
-class Payment(BaseModel):
-    date: str = Field(..., description="Date of the payment")
-    description: str = Field(..., description="Description of the payment")
-    category: str = Field(..., description="Category of the payment")
-    amount: float = Field(..., description="Amount of the payment")
-
-class Income(BaseModel):
-    biweekly: float = Field(..., description="Biweekly income amount")
-    monthly: float = Field(..., description="Monthly income amount (calculated as 2x biweekly)")
-
-class FinancialData(BaseModel):
-    income: Income
-    bills: List[Bill]
-    payments: List[Payment] = Field(default_factory=list)
-
-# File path for data storage
-DATA_FILE = "data/financial_data.json"
-
-# Ensure data directory exists
-os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
-
-# Helper functions
-def load_data() -> FinancialData:
-    try:
-        with open(DATA_FILE, 'r') as f:
-            data = json.load(f)
-            return FinancialData(**data)
-    except FileNotFoundError:
-        return FinancialData(
-            income=Income(biweekly=0, monthly=0),
-            bills=[],
-            payments=[]
-        )
-
-def save_data(data: FinancialData):
-    with open(DATA_FILE, 'w') as f:
-        json.dump(data.dict(), f, indent=2)
-
 # API Routes
-@app.get("/api/finances", response_model=FinancialData, tags=["Financial Data"])
+@app.get("/api/finances", tags=["Financial Data"])
 async def get_financial_data():
     """
     Retrieve the current financial data including income and bills
     """
     try:
-        logger.info("Financial data loaded successfully")
-        logger.debug("Loaded data: %s", load_data().dict())
-        return load_data()
+        income = await finance_dao.get_income()
+        bills = await finance_dao.get_bills()
+        transactions = await finance_dao.get_transactions()
+        
+        logger.info("Financial data loaded successfully from MongoDB")
+        return {
+            "income": income,
+            "bills": bills,
+            "payments": transactions  # Note: we're using transactions but mapping to 'payments' for frontend compatibility
+        }
     except Exception as e:
         logger.error("Error loading financial data: %s", str(e))
         raise HTTPException(status_code=500, detail="Error loading financial data")
 
 @app.post("/api/finances", tags=["Financial Data"])
-async def update_financial_data(data: FinancialData):
+async def update_financial_data(data: dict):
     """
     Update the financial data with new income or bill information
     """
     try:
-        save_data(data)
-        logger.info("Financial data updated successfully")
-        logger.debug("Updated data: %s", data.dict())
-        return data
+        # Update income
+        if "income" in data:
+            income = Income(**data["income"])
+            await finance_dao.update_income(income)
+        
+        # Update bills
+        if "bills" in data:
+            # First, delete all existing bills
+            existing_bills = await finance_dao.get_bills()
+            for bill in existing_bills:
+                await finance_dao.delete_bill(bill.name)
+            
+            # Then add new bills
+            for bill_data in data["bills"]:
+                bill = Bill(**bill_data)
+                await finance_dao.add_bill(bill)
+        
+        # Update transactions/payments
+        if "payments" in data:
+            # First, get and delete all existing transactions
+            existing_transactions = await finance_dao.get_transactions()
+            for trans in existing_transactions:
+                await finance_dao.delete_transaction(str(trans.id))
+            
+            # Then add new transactions
+            for payment in data["payments"]:
+                transaction = Transaction(
+                    date=datetime.fromisoformat(payment["date"]),
+                    description=payment["description"],
+                    category=payment["category"],
+                    amount=payment["amount"],
+                    type="expense"
+                )
+                await finance_dao.add_transaction(transaction)
+        
+        logger.info("Financial data updated successfully in MongoDB")
+        return await get_financial_data()
     except Exception as e:
         logger.error("Error updating financial data: %s", str(e))
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    finance_dao.close()
 
 if __name__ == "__main__":
     import uvicorn
