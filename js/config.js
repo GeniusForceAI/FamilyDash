@@ -3,7 +3,7 @@ const config = {
   // API base URL - will be different in production vs development
   apiUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:8000/api'
-    : 'https://baker-finances-backend.up.railway.app/api'
+    : 'https://web-production-f4beb.up.railway.app/api'
 };
 
 // Export the configuration
