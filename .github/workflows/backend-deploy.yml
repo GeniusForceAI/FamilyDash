@@ -8,6 +8,7 @@ on:
       - 'api/**'
       - 'requirements.txt'
       - '.github/workflows/backend-deploy.yml'
+      - 'railway.toml'
 
 jobs:
   deploy:
@@ -16,10 +17,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+        
       - name: Install Railway CLI
         run: npm install -g @railway/cli
         
       - name: Deploy to Railway
-        run: railway up
+        run: |
+          railway link ${{ secrets.RAILWAY_PROJECT_ID }}
+          railway up --service ${{ secrets.RAILWAY_SERVICE_NAME }}
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
