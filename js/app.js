@@ -152,8 +152,9 @@ function updateDashboard() {
     // Update income display
     const biweeklyIncome = document.getElementById('biweeklyIncome');
     const monthlyIncomeElement = document.getElementById('monthlyIncome');
-    if (biweeklyIncome) biweeklyIncome.textContent = formatCurrency(state.income.biweekly);
-    if (monthlyIncomeElement) monthlyIncomeElement.textContent = formatCurrency(state.income.monthly);
+    
+    if (biweeklyIncome) biweeklyIncome.textContent = formatCurrency(Number(state.income.biweekly));
+    if (monthlyIncomeElement) monthlyIncomeElement.textContent = formatCurrency(Number(state.income.monthly));
 
     // Update bills table
     const billsTableBody = document.getElementById('billsTableBody');
@@ -161,7 +162,7 @@ function updateDashboard() {
         billsTableBody.innerHTML = state.bills.map(bill => `
             <tr>
                 <td>${bill.name}</td>
-                <td>${formatCurrency(bill.amount)}</td>
+                <td>${formatCurrency(Number(bill.amount))}</td>
                 <td>${bill.category}</td>
                 <td>
                     <button class="action-button" onclick="editBill('${bill.name}')">
@@ -176,15 +177,15 @@ function updateDashboard() {
     }
 
     // Update total bills and progress
-    const totalBills = state.bills.reduce((sum, bill) => sum + bill.amount, 0);
+    const totalBills = state.bills.reduce((sum, bill) => sum + Number(bill.amount), 0);
     const totalBillsElement = document.getElementById('totalBills');
     if (totalBillsElement) {
         totalBillsElement.textContent = formatCurrency(totalBills);
     }
 
-    // Use the biweekly income from state for calculations
-    const biweeklyIncomeValue = state.income.biweekly;
-    const billsPercentage = biweeklyIncomeValue > 0 ? (totalBills / biweeklyIncomeValue) * 100 : 0;
+    // Calculate percentage
+    const biweeklyIncomeValue = Number(state.income.biweekly);
+    const billsPercentage = (totalBills / biweeklyIncomeValue) * 100;
     
     const progressBar = document.querySelector('.progress');
     if (progressBar) {
@@ -203,8 +204,8 @@ function updateDashboard() {
             <tr>
                 <td>${new Date(payment.date).toLocaleDateString()}</td>
                 <td>${payment.description}</td>
+                <td>${formatCurrency(Number(payment.amount))}</td>
                 <td>${payment.category}</td>
-                <td>${formatCurrency(payment.amount)}</td>
                 <td>
                     <button class="action-button" onclick="editPayment('${payment.date}')">
                         <i class="fas fa-edit"></i>
