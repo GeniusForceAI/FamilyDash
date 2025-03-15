@@ -11,42 +11,74 @@ let state = {
     payments: []
 };
 
-// DOM Elements
-const menuToggle = document.getElementById('menuToggle');
-const themeToggle = document.getElementById('themeToggle');
-const sideNav = document.querySelector('.side-nav');
-const dateDisplay = document.querySelector('.date-display');
-
 // Theme handling
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.body.classList.remove('light-mode', 'dark-mode');
+    document.body.classList.add(`${savedTheme}-mode`);
+    return savedTheme;
+}
+
 function toggleTheme() {
-    const isDarkMode = document.body.classList.toggle('dark-mode');
-    document.body.classList.toggle('light-mode', !isDarkMode);
-    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    document.body.classList.remove('dark-mode', 'light-mode');
+    document.body.classList.add(isDarkMode ? 'light-mode' : 'dark-mode');
+    localStorage.setItem('theme', isDarkMode ? 'light' : 'dark');
+    
+    // Update icon
+    const themeIcon = document.querySelector('#themeToggle i');
+    if (themeIcon) {
+        themeIcon.className = isDarkMode ? 'fas fa-moon' : 'fas fa-sun';
+    }
 }
 
 // Mobile menu handling
 function toggleMenu() {
-    document.body.classList.toggle('nav-open');
+    const body = document.body;
+    const isOpen = body.classList.contains('nav-open');
+    
+    body.classList.toggle('nav-open');
+    
+    // Update menu icon
+    const menuIcon = document.querySelector('#menuToggle i');
+    if (menuIcon) {
+        menuIcon.className = isOpen ? 'fas fa-bars' : 'fas fa-times';
+    }
 }
 
 // Initialize event listeners
 function initializeApp() {
-    // Theme toggle
+    console.log('Initializing app components...');
+    
+    // Theme initialization and toggle
+    const currentTheme = initializeTheme();
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
+        console.log('Setting up theme toggle');
+        themeToggle.innerHTML = `<i class="fas fa-${currentTheme === 'dark' ? 'sun' : 'moon'}"></i>`;
         themeToggle.addEventListener('click', toggleTheme);
     }
-
-    // Apply saved theme
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.body.classList.toggle('dark-mode', savedTheme === 'dark');
-    document.body.classList.toggle('light-mode', savedTheme === 'light');
 
     // Mobile menu toggle
     const menuToggle = document.getElementById('menuToggle');
     if (menuToggle) {
+        console.log('Setting up menu toggle');
+        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
         menuToggle.addEventListener('click', toggleMenu);
     }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        const sideNav = document.querySelector('.side-nav');
+        const menuToggle = document.getElementById('menuToggle');
+        
+        if (sideNav && menuToggle && 
+            !sideNav.contains(e.target) && 
+            !menuToggle.contains(e.target) && 
+            document.body.classList.contains('nav-open')) {
+            toggleMenu();
+        }
+    });
 
     // Format date in header
     const dateDisplay = document.querySelector('.date-display');
@@ -560,14 +592,11 @@ async function handleIncomeSubmit(e) {
 // Initialize the app when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM fully loaded - initializing app');
-    
-    // Check authentication first
-    if (!window.auth || !window.auth.isLoggedIn()) {
-        const baseUrl = window.config.baseUrl;
-        window.location.href = `${baseUrl}/pages/login.html`;
-        return;
-    }
-    
     initializeApp();
-    loadFinancialData();
+    
+    // Load financial data if we're on a page that needs it
+    const needsFinancialData = document.querySelector('[data-needs-financial-data]');
+    if (needsFinancialData) {
+        loadFinancialData();
+    }
 });
