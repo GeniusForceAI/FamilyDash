@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
@@ -33,6 +34,34 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
 )
+
+# Root endpoint
+@app.get("/")
+async def root():
+    """
+    Root endpoint that returns API information
+    """
+    return {
+        "name": "Baker Family Finances API",
+        "version": "1.0.0",
+        "status": "running",
+        "endpoints": [
+            "/",
+            "/health",
+            "/api/finances"
+        ]
+    }
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    """
+    Health check endpoint for Railway
+    """
+    return JSONResponse(
+        status_code=200,
+        content={"status": "healthy", "timestamp": datetime.now().isoformat()}
+    )
 
 # Data Models
 class Bill(BaseModel):
