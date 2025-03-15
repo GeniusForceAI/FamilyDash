@@ -33,4 +33,4 @@ jobs:
           MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
         with:
           railway_token: ${{ secrets.RAILWAY_TOKEN }}
-          service: "web-production-f4beb"  # Using the service name from the URL
+          service: "web"  # Using the service name from Railway link command
