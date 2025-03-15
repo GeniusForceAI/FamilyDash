@@ -8,6 +8,8 @@ restartPolicyType = "ON_FAILURE"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 
-[env]
-MONGODB_USER = "$MONGODB_USER"
-MONGODB_PASSWORD = "$MONGODB_PASSWORD"
+# Environment variables are set through Railway's dashboard
+# Do not include actual values here for security
+[variables]
+MONGODB_USER = "${MONGODB_USER}"
+MONGODB_PASSWORD = "${MONGODB_PASSWORD}"
