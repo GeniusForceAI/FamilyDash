@@ -1,5 +1,5 @@
 // Domain for API calls - using config from config.js
-const apiBaseUrl = config.apiUrl;
+const apiBaseUrl = window.config.apiUrl;
 
 // State Management
 let state = {
@@ -106,14 +106,7 @@ function initializeApp() {
 async function loadFinancialData() {
     try {
         console.log('Fetching financial data from /api/finances...');
-        const response = await fetch(`${apiBaseUrl}/finances`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
+        const response = await window.auth.fetchWithAuth(`${apiBaseUrl}${window.config.endpoints.finances}`);
         
         if (!response.ok) {
             console.error('Server response not ok:', {
@@ -131,14 +124,19 @@ async function loadFinancialData() {
         console.log('Parsed financial data:', data);
 
         // Update state with new data
-        state.income = data.income;
-        state.bills = data.bills;
-        state.payments = data.payments;
+        state.income = data.income || { biweekly: 0, monthly: 0 };
+        state.bills = data.bills || [];
+        state.payments = data.payments || [];
         
         console.log('Updated application state:', state);
         updateDashboard();
     } catch (error) {
         console.error('Error loading financial data:', error);
+        if (error.message.includes('401')) {
+            // Unauthorized - redirect to login
+            window.auth.logout();
+            return;
+        }
         // Show error in UI
         const dashboardError = document.getElementById('dashboardError');
         if (dashboardError) {
@@ -434,28 +432,36 @@ function deletePayment(paymentDate) {
 
 // Helper function to update financial data
 async function updateFinancialData() {
-    const updatedData = {
-        income: state.income,
-        bills: state.bills,
-        payments: state.payments
-    };
-    
     try {
-        const response = await fetch(`${apiBaseUrl}/finances`, {
+        const response = await window.auth.fetchWithAuth(`${apiBaseUrl}${window.config.endpoints.finances}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
             },
-            body: JSON.stringify(updatedData)
+            body: JSON.stringify({
+                income: state.income,
+                bills: state.bills,
+                payments: state.payments
+            })
         });
-        
-        if (!response.ok) throw new Error('Failed to update financial data');
-        
-        // Update UI
+
+        if (!response.ok) {
+            throw new Error('Failed to update financial data');
+        }
+
+        const data = await response.json();
+        state.income = data.income || { biweekly: 0, monthly: 0 };
+        state.bills = data.bills || [];
+        state.payments = data.payments || [];
         updateDashboard();
     } catch (error) {
         console.error('Error updating financial data:', error);
+        if (error.message.includes('401')) {
+            // Unauthorized - redirect to login
+            window.auth.logout();
+            return;
+        }
+        alert('Failed to update data. Please try again.');
     }
 }
 
@@ -553,20 +559,15 @@ async function handleIncomeSubmit(e) {
 
 // Initialize the app when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM fully loaded -  app');
-    initializeApp();
+    console.log('DOM fully loaded - initializing app');
     
-    // Explicitly call loadFinancialData to ensure API call is made
-    console.log('Loading financial data...');
+    // Check authentication first
+    if (!window.auth || !window.auth.isLoggedIn()) {
+        const baseUrl = window.config.baseUrl;
+        window.location.href = `${baseUrl}/pages/login.html`;
+        return;
+    }
+    
+    initializeApp();
     loadFinancialData();
 });
-
-// Also try to load data immediately in case DOMContentLoaded already fired
-console.log('Script loaded - checking if DOM is already loaded');
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    console.log('DOM already loaded - initializing app immediately');
-    setTimeout(() => {
-        initializeApp();
-        loadFinancialData();
-    }, 1);
-}

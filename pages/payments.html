@@ -9,6 +9,173 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/config.js"></script>
+    <script type="module">
+        import { auth } from '../js/auth.js';
+        window.auth = auth;
+        
+        // Check authentication
+        if (!auth.isLoggedIn()) {
+            window.location.href = window.config.getPath('/pages/login.html');
+            throw new Error('Authentication required');
+        }
+
+        // Load payments data when the page loads
+        async function loadPaymentsData() {
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.className = 'loading-overlay';
+            loadingOverlay.innerHTML = '<div class="spinner"><i class="fas fa-spinner fa-spin"></i></div>';
+            document.body.appendChild(loadingOverlay);
+
+            try {
+                console.log('Loading payments data...');
+                const response = await auth.fetchWithAuth(window.config.getApiUrl(window.config.endpoints.finances));
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to load payments data: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Payments data loaded:', data);
+
+                // Update payments table
+                const paymentsTableBody = document.getElementById('paymentsTableBody');
+                if (paymentsTableBody) {
+                    if (!data.payments || data.payments.length === 0) {
+                        paymentsTableBody.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="no-data">
+                                    <i class="fas fa-info-circle"></i>
+                                    No payments recorded yet
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        paymentsTableBody.innerHTML = data.payments.map(payment => `
+                            <tr>
+                                <td>${payment.date}</td>
+                                <td>${payment.description}</td>
+                                <td>${payment.category}</td>
+                                <td>${formatCurrency(payment.amount)}</td>
+                                <td>
+                                    <button class="action-button" onclick="editPayment('${payment.date}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-button" onclick="deletePayment('${payment.date}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+
+                // Calculate and update payment statistics
+                const payments = data.payments || [];
+                const monthlyTotal = payments.reduce((sum, payment) => sum + Number(payment.amount), 0);
+                const averagePayment = payments.length ? monthlyTotal / payments.length : 0;
+                const largestPayment = payments.length ? Math.max(...payments.map(p => Number(p.amount))) : 0;
+
+                // Update statistics display
+                document.getElementById('totalMonthlyPayments').textContent = formatCurrency(monthlyTotal);
+                document.getElementById('averagePayment').textContent = formatCurrency(averagePayment);
+                document.getElementById('largestPayment').textContent = formatCurrency(largestPayment);
+
+                // Calculate category breakdown
+                const categories = {};
+                payments.forEach(payment => {
+                    categories[payment.category] = (categories[payment.category] || 0) + Number(payment.amount);
+                });
+
+                // Update category breakdown display
+                const categoryBreakdown = document.getElementById('categoryBreakdown');
+                if (categoryBreakdown) {
+                    if (Object.keys(categories).length === 0) {
+                        categoryBreakdown.innerHTML = `
+                            <div class="no-data">
+                                <i class="fas fa-info-circle"></i>
+                                No categories to display
+                            </div>
+                        `;
+                    } else {
+                        categoryBreakdown.innerHTML = Object.entries(categories).map(([category, amount]) => `
+                            <div class="stat-item">
+                                <span>${category}</span>
+                                <span>${formatCurrency(amount)}</span>
+                            </div>
+                        `).join('');
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error loading payments data:', error);
+                const errorMessage = error.message === 'Unauthorized' 
+                    ? 'Session expired. Please log in again.'
+                    : 'Failed to load payments data. Please try again.';
+                
+                showError(errorMessage);
+            } finally {
+                document.body.removeChild(loadingOverlay);
+            }
+        }
+
+        function showError(message) {
+            const errorToast = document.createElement('div');
+            errorToast.className = 'error-toast';
+            errorToast.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i>
+                ${message}
+            `;
+            document.body.appendChild(errorToast);
+            
+            setTimeout(() => {
+                errorToast.classList.add('fade-out');
+                setTimeout(() => document.body.removeChild(errorToast), 300);
+            }, 3000);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+
+        // Load data when the page is ready
+        document.addEventListener('DOMContentLoaded', loadPaymentsData);
+
+        // Add payment button handler
+        document.addEventListener('DOMContentLoaded', () => {
+            const addPaymentBtn = document.getElementById('addPaymentBtn');
+            if (addPaymentBtn) {
+                addPaymentBtn.addEventListener('click', () => {
+                    const modal = document.getElementById('paymentModal');
+                    if (modal) {
+                        modal.style.display = 'block';
+                    }
+                });
+            }
+        });
+
+        // Make functions available globally
+        window.editPayment = async (date) => {
+            // Implementation will be added
+            console.log('Edit payment:', date);
+        };
+
+        window.deletePayment = async (date) => {
+            // Implementation will be added
+            console.log('Delete payment:', date);
+        };
+
+        window.closePaymentModal = () => {
+            const modal = document.getElementById('paymentModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        };
+    </script>
+    <script src="../js/app.js"></script>
 </head>
 <body class="dark-mode">
     <!-- Mobile Menu Toggle -->
@@ -79,6 +246,12 @@
                             </tr>
                         </thead>
                         <tbody id="paymentsTableBody">
+                            <tr>
+                                <td colspan="5" class="no-data">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    Loading payments...
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -113,7 +286,10 @@
                 </div>
                 <div class="card-content">
                     <div id="categoryBreakdown">
-                        <!-- Categories will be dynamically added here -->
+                        <div class="no-data">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            Loading categories...
+                        </div>
                     </div>
                 </div>
             </div>
@@ -134,39 +310,50 @@
                     <form id="paymentForm">
                         <div class="form-group">
                             <label for="paymentDate">Date</label>
-                            <input type="date" id="paymentDate" required>
+                            <div class="input-group">
+                                <i class="fas fa-calendar"></i>
+                                <input type="date" id="paymentDate" required>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="paymentDescription">Description</label>
-                            <input type="text" id="paymentDescription" required>
+                            <div class="input-group">
+                                <i class="fas fa-file-alt"></i>
+                                <input type="text" id="paymentDescription" required placeholder="Enter payment description">
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="paymentCategory">Category</label>
-                            <select id="paymentCategory" required>
-                                <option value="Housing">Housing</option>
-                                <option value="Transportation">Transportation</option>
-                                <option value="Utilities">Utilities</option>
-                                <option value="Insurance">Insurance</option>
-                                <option value="Other">Other</option>
-                            </select>
+                            <div class="input-group">
+                                <i class="fas fa-tag"></i>
+                                <select id="paymentCategory" required>
+                                    <option value="">Select a category</option>
+                                    <option value="Housing">Housing</option>
+                                    <option value="Transportation">Transportation</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Insurance">Insurance</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="paymentAmount">Amount</label>
-                            <input type="number" id="paymentAmount" step="0.01" required>
+                            <div class="input-group">
+                                <i class="fas fa-dollar-sign"></i>
+                                <input type="number" id="paymentAmount" step="0.01" required placeholder="Enter amount">
+                            </div>
                         </div>
-                        <input type="hidden" id="paymentEditMode" value="add">
-                        <input type="hidden" id="paymentOriginalDate" value="">
                         <div class="form-actions">
-                            <button type="submit" class="action-button" id="paymentSubmitBtn">Add Payment</button>
-                            <button type="button" class="cancel-button" onclick="closePaymentModal()">Cancel</button>
+                            <button type="submit" class="primary-button">Add Payment</button>
+                            <button type="button" class="secondary-button" onclick="closePaymentModal()">Cancel</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
-    <script src="../js/config.js"></script>
-    <script src="../js/app.js"></script>
 </body>
 </html>

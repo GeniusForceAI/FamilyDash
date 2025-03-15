@@ -3,12 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bills - Baker Family Finances</title>
+    <title>Bills Management - FamilyDash</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/config.js"></script>
+    <script type="module">
+        import { auth } from '../js/auth.js';
+        window.auth = auth;
+        
+        // Check authentication
+        if (!auth.isLoggedIn()) {
+            window.location.href = window.config.getPath('/pages/login.html');
+        }
+
+        // Load bills data when the page loads
+        async function loadBillsData() {
+            try {
+                console.log('Loading bills data...');
+                const response = await auth.fetchWithAuth(`${window.config.apiUrl}/api/finances`);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to load bills data: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Bills data loaded:', data);
+
+                // Update bills table
+                const billsTableBody = document.getElementById('billsTableBody');
+                if (billsTableBody) {
+                    billsTableBody.innerHTML = (data.bills || []).map(bill => `
+                        <tr>
+                            <td>${bill.name}</td>
+                            <td>${formatCurrency(bill.amount)}</td>
+                            <td>${bill.category}</td>
+                            <td>${bill.dueDate || 'N/A'}</td>
+                            <td>${bill.isRecurring ? 'Recurring' : 'One-time'}</td>
+                            <td>
+                                <button class="action-button" onclick="editBill('${bill.name}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-button" onclick="deleteBill('${bill.name}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                // Update total bills and progress
+                const totalBills = (data.bills || []).reduce((sum, bill) => sum + Number(bill.amount), 0);
+                const totalBillsElement = document.getElementById('totalBills');
+                if (totalBillsElement) {
+                    totalBillsElement.textContent = formatCurrency(totalBills);
+                }
+
+                // Calculate and update progress bar
+                const monthlyIncome = Number(data.income?.monthly || 0);
+                const billsPercentage = monthlyIncome ? (totalBills / monthlyIncome) * 100 : 0;
+                
+                const progressBar = document.querySelector('.progress');
+                if (progressBar) {
+                    progressBar.style.width = `${Math.min(billsPercentage, 100)}%`;
+                }
+                
+                const progressText = document.querySelector('.progress-text');
+                if (progressText) {
+                    progressText.textContent = `${billsPercentage.toFixed(1)}% of Monthly Income`;
+                }
+
+                // Calculate category breakdown
+                const categories = {};
+                (data.bills || []).forEach(bill => {
+                    categories[bill.category] = (categories[bill.category] || 0) + Number(bill.amount);
+                });
+
+                // Update category breakdown display
+                const categoryBreakdown = document.getElementById('billsCategoryBreakdown');
+                if (categoryBreakdown) {
+                    categoryBreakdown.innerHTML = Object.entries(categories).map(([category, amount]) => `
+                        <div class="stat-item">
+                            <span>${category}</span>
+                            <span>${formatCurrency(amount)}</span>
+                        </div>
+                    `).join('');
+                }
+
+            } catch (error) {
+                console.error('Error loading bills data:', error);
+                alert('Failed to load bills data. Please refresh the page.');
+            }
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+
+        // Load data when the page is ready
+        document.addEventListener('DOMContentLoaded', loadBillsData);
+    </script>
+    <script src="../js/app.js"></script>
 </head>
 <body class="dark-mode">
     <!-- Mobile Menu Toggle -->
@@ -162,8 +262,5 @@
             </div>
         </div>
     </div>
-
-    <script src="../js/config.js"></script>
-    <script src="../js/app.js"></script>
 </body>
 </html>

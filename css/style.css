@@ -7,6 +7,8 @@
     --dark-secondary: #60a5fa;
     --dark-border: #334155;
     --dark-hover: #2c3e50;
+    --dark-error: #ef4444;
+    --dark-success: #22c55e;
     
     /* Light theme variables */
     --light-bg: #f8fafc;
@@ -16,6 +18,8 @@
     --light-secondary: #3b82f6;
     --light-border: #e2e8f0;
     --light-hover: #f1f5f9;
+    --light-error: #dc2626;
+    --light-success: #16a34a;
 
     /* Shared variables */
     --sidebar-width: 280px;
@@ -636,4 +640,203 @@ h3 { font-size: 1.25rem; }
     .financial-summary-banner .progress-text {
         text-align: left;
     }
+}
+
+/* Loading States */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner {
+    font-size: 2rem;
+    color: var(--dark-accent);
+}
+
+.light-mode .spinner {
+    color: var(--light-accent);
+}
+
+.no-data {
+    text-align: center;
+    padding: 2rem;
+    color: var(--dark-text);
+    opacity: 0.7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.light-mode .no-data {
+    color: var(--light-text);
+}
+
+.no-data i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Error Toast */
+.error-toast {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    background: var(--dark-error);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    z-index: 9999;
+    animation: slideIn 0.3s ease;
+}
+
+.light-mode .error-toast {
+    background: var(--light-error);
+}
+
+.error-toast i {
+    font-size: 1.25rem;
+}
+
+.error-toast.fade-out {
+    animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Input Groups */
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-group i {
+    position: absolute;
+    left: 1rem;
+    color: var(--dark-text);
+    opacity: 0.7;
+}
+
+.light-mode .input-group i {
+    color: var(--light-text);
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid var(--dark-border);
+    border-radius: 8px;
+    background: var(--dark-card-bg);
+    color: var(--dark-text);
+    font-size: 1rem;
+}
+
+.light-mode .input-group input,
+.light-mode .input-group select {
+    border-color: var(--light-border);
+    background: var(--light-card-bg);
+    color: var(--light-text);
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    outline: none;
+    border-color: var(--dark-accent);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.light-mode .input-group input:focus,
+.light-mode .input-group select:focus {
+    border-color: var(--light-accent);
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.primary-button,
+.secondary-button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.primary-button {
+    background: var(--dark-accent);
+    color: white;
+    border: none;
+}
+
+.primary-button:hover {
+    background: var(--dark-secondary);
+}
+
+.secondary-button {
+    background: transparent;
+    color: var(--dark-text);
+    border: 1px solid var(--dark-border);
+}
+
+.secondary-button:hover {
+    background: var(--dark-hover);
+}
+
+.light-mode .primary-button {
+    background: var(--light-accent);
+}
+
+.light-mode .primary-button:hover {
+    background: var(--light-secondary);
+}
+
+.light-mode .secondary-button {
+    color: var(--light-text);
+    border-color: var(--light-border);
+}
+
+.light-mode .secondary-button:hover {
+    background: var(--light-hover);
 }
