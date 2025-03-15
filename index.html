@@ -10,129 +10,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <script src="js/config.js"></script>
-    <script type="module">
-        import { auth } from './js/auth.js';
-        
-        // Check authentication on page load
-        if (!auth.isLoggedIn()) {
-            console.log('Not logged in, redirecting to login page');
-            window.location.href = window.config.getPath('/pages/login.html');
-        }
-
-        // Load dashboard data when the page is loaded
-        async function loadDashboardData() {
-            try {
-                console.log('Loading dashboard data...');
-                const response = await auth.fetchWithAuth(`${window.config.apiUrl}/api/finances`);
-                
-                if (!response.ok) {
-                    throw new Error(`Failed to load financial data: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log('Financial data loaded:', data);
-
-                // Update income display
-                const biweeklyIncome = document.getElementById('biweeklyIncome');
-                const monthlyIncome = document.getElementById('monthlyIncome');
-                if (biweeklyIncome) biweeklyIncome.textContent = formatCurrency(data.income?.biweekly || 0);
-                if (monthlyIncome) monthlyIncome.textContent = formatCurrency(data.income?.monthly || 0);
-
-                // Update bills table
-                const billsTableBody = document.getElementById('billsTableBody');
-                if (billsTableBody) {
-                    billsTableBody.innerHTML = (data.bills || []).map(bill => `
-                        <tr>
-                            <td>${bill.name}</td>
-                            <td>${formatCurrency(bill.amount)}</td>
-                            <td>${bill.category}</td>
-                            <td>
-                                <button class="action-button" onclick="editBill('${bill.name}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="action-button" onclick="deleteBill('${bill.name}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
-                }
-
-                // Update total bills and progress
-                const totalBills = (data.bills || []).reduce((sum, bill) => sum + Number(bill.amount), 0);
-                const totalBillsElement = document.getElementById('totalBills');
-                if (totalBillsElement) {
-                    totalBillsElement.textContent = formatCurrency(totalBills);
-                }
-
-                // Calculate and update progress bar
-                const biweeklyIncomeValue = Number(data.income?.biweekly || 0);
-                const billsPercentage = biweeklyIncomeValue ? (totalBills / biweeklyIncomeValue) * 100 : 0;
-                
-                const progressBar = document.querySelector('.progress');
-                if (progressBar) {
-                    progressBar.style.width = `${Math.min(billsPercentage, 100)}%`;
-                }
-                
-                const progressText = document.querySelector('.progress-text');
-                if (progressText) {
-                    progressText.textContent = `${billsPercentage.toFixed(1)}% of Biweekly Income`;
-                }
-
-            } catch (error) {
-                console.error('Error loading dashboard data:', error);
-                const errorElement = document.getElementById('dashboardError');
-                if (errorElement) {
-                    errorElement.textContent = 'Failed to load financial data. Please refresh the page.';
-                    errorElement.style.display = 'block';
-                }
-            }
-        }
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(amount);
-        }
-
-        // Add logout button to nav
-        document.addEventListener('DOMContentLoaded', () => {
-            // Load dashboard data immediately when the page loads
-            loadDashboardData();
-
-            const nav = document.querySelector('.nav-links');
-            const logoutItem = document.createElement('div');
-            logoutItem.className = 'nav-item';
-            logoutItem.innerHTML = `
-                <a href="#" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a>
-            `;
-            nav.appendChild(logoutItem);
-            
-            document.getElementById('logoutBtn').addEventListener('click', (e) => {
-                e.preventDefault();
-                auth.logout();
-            });
-        });
-
-        // Export auth for other scripts
-        window.auth = auth;
-    </script>
-    <script src="js/app.js"></script>
 </head>
 <body class="dark-mode">
-    <!-- Mobile Menu Toggle -->
-    <button id="menuToggle" class="menu-toggle">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <!-- Theme Toggle -->
-    <button id="themeToggle" class="theme-toggle">
-        <i class="fas fa-moon"></i>
-    </button>
+    <!-- Header Controls -->
+    <div class="header-controls">
+        <button id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <button id="themeToggle">
+            <i class="fas fa-sun"></i>
+        </button>
+    </div>
 
     <!-- Side Navigation -->
     <nav class="side-nav">
@@ -163,6 +51,12 @@
                 <a href="./pages/settings.html">
                     <i class="fas fa-cog"></i>
                     Settings
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
                 </a>
             </div>
         </nav>
@@ -455,28 +349,148 @@
         </div>
     </div>
 
-    <script>
-        const API_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:8000'
-            : 'https://web-production-f4beb.up.railway.app';
+    <script type="module">
+        import { auth } from './js/auth.js';
+        import { theme } from './js/theme.js';
+        
+        // Check authentication on page load
+        if (!auth.isLoggedIn()) {
+            console.log('Not logged in, redirecting to login page');
+            window.location.href = window.config.getPath('/pages/login.html');
+        }
 
-        // Use auth.fetchWithAuth for all API calls
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded - initializing app');
+            
+            // Initialize theme
+            theme.initialize();
+            theme.setupToggleButton();
+            
+            // Setup mobile menu
+            const menuToggle = document.getElementById('menuToggle');
+            if (menuToggle) {
+                menuToggle.addEventListener('click', () => {
+                    document.body.classList.toggle('nav-open');
+                    const icon = menuToggle.querySelector('i');
+                    if (icon) {
+                        icon.className = document.body.classList.contains('nav-open') ? 'fas fa-times' : 'fas fa-bars';
+                    }
+                });
+            }
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                const sideNav = document.querySelector('.side-nav');
+                if (document.body.classList.contains('nav-open') &&
+                    sideNav && !sideNav.contains(e.target) &&
+                    menuToggle && !menuToggle.contains(e.target)) {
+                    document.body.classList.remove('nav-open');
+                    const icon = menuToggle.querySelector('i');
+                    if (icon) {
+                        icon.className = 'fas fa-bars';
+                    }
+                }
+            });
+            
+            // Load financial data
+            loadFinancialData();
+            
+            // Add logout button to nav
+            const nav = document.querySelector('.nav-links');
+            const logoutItem = document.createElement('div');
+            logoutItem.className = 'nav-item';
+            logoutItem.innerHTML = `
+                <a href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            `;
+            nav.appendChild(logoutItem);
+            
+            document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.logout();
+            });
+        });
+
+        // Load and update financial data
         async function loadFinancialData() {
             try {
-                const response = await window.auth.fetchWithAuth(`${API_URL}/api/finances`);
+                console.log('Loading dashboard data...');
+                const response = await auth.fetchWithAuth(`${window.config.apiUrl}/api/finances`);
+                
                 if (!response.ok) {
-                    throw new Error('Failed to load financial data');
+                    throw new Error(`Failed to load financial data: ${response.status}`);
                 }
+
                 const data = await response.json();
-                updateDashboard(data);
+                console.log('Financial data loaded:', data);
+
+                // Update income display
+                const biweeklyIncome = document.getElementById('biweeklyIncome');
+                const monthlyIncome = document.getElementById('monthlyIncome');
+                if (biweeklyIncome) biweeklyIncome.textContent = formatCurrency(data.income?.biweekly || 0);
+                if (monthlyIncome) monthlyIncome.textContent = formatCurrency(data.income?.monthly || 0);
+
+                // Update bills table
+                const billsTableBody = document.getElementById('billsTableBody');
+                if (billsTableBody) {
+                    billsTableBody.innerHTML = (data.bills || []).map(bill => `
+                        <tr>
+                            <td>${bill.name}</td>
+                            <td>${formatCurrency(bill.amount)}</td>
+                            <td>${bill.category}</td>
+                            <td>
+                                <button class="action-button" onclick="editBill('${bill.name}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-button" onclick="deleteBill('${bill.name}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                // Update total bills and progress
+                const totalBills = (data.bills || []).reduce((sum, bill) => sum + Number(bill.amount), 0);
+                const totalBillsElement = document.getElementById('totalBills');
+                if (totalBillsElement) {
+                    totalBillsElement.textContent = formatCurrency(totalBills);
+                }
+
+                // Calculate and update progress bar
+                const biweeklyIncomeValue = Number(data.income?.biweekly || 0);
+                const billsPercentage = biweeklyIncomeValue ? (totalBills / biweeklyIncomeValue) * 100 : 0;
+                
+                const progressBar = document.querySelector('.progress');
+                if (progressBar) {
+                    progressBar.style.width = `${Math.min(billsPercentage, 100)}%`;
+                }
+                
+                const progressText = document.querySelector('.progress-text');
+                if (progressText) {
+                    progressText.textContent = `${billsPercentage.toFixed(1)}% of Biweekly Income`;
+                }
+
             } catch (error) {
-                const errorDiv = document.getElementById('dashboardError');
-                errorDiv.textContent = error.message;
-                errorDiv.style.display = 'block';
+                console.error('Error loading dashboard data:', error);
+                const errorElement = document.getElementById('dashboardError');
+                if (errorElement) {
+                    errorElement.textContent = 'Failed to load financial data. Please refresh the page.';
+                    errorElement.style.display = 'block';
+                }
             }
         }
 
-        // Rest of your existing JavaScript code...
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
     </script>
+    <script src="js/app.js"></script>
 </body>
 </html>

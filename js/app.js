@@ -14,35 +14,56 @@ let state = {
 // Theme handling
 function initializeTheme() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.body.classList.remove('light-mode', 'dark-mode');
+    document.body.classList.remove('dark-mode', 'light-mode');
     document.body.classList.add(`${savedTheme}-mode`);
-    return savedTheme;
+    
+    // Update theme toggle icon
+    const themeIcon = document.querySelector('#themeToggle i');
+    if (themeIcon) {
+        themeIcon.className = `fas fa-${savedTheme === 'dark' ? 'sun' : 'moon'}`;
+    }
 }
 
 function toggleTheme() {
     const isDarkMode = document.body.classList.contains('dark-mode');
+    const newTheme = isDarkMode ? 'light' : 'dark';
+    
+    // Update body class
     document.body.classList.remove('dark-mode', 'light-mode');
-    document.body.classList.add(isDarkMode ? 'light-mode' : 'dark-mode');
-    localStorage.setItem('theme', isDarkMode ? 'light' : 'dark');
+    document.body.classList.add(`${newTheme}-mode`);
     
     // Update icon
     const themeIcon = document.querySelector('#themeToggle i');
     if (themeIcon) {
-        themeIcon.className = isDarkMode ? 'fas fa-moon' : 'fas fa-sun';
+        themeIcon.className = `fas fa-${newTheme === 'dark' ? 'sun' : 'moon'}`;
     }
+    
+    // Save preference
+    localStorage.setItem('theme', newTheme);
 }
 
 // Mobile menu handling
 function toggleMenu() {
     const body = document.body;
-    const isOpen = body.classList.contains('nav-open');
+    const menuIcon = document.querySelector('#menuToggle i');
     
     body.classList.toggle('nav-open');
     
     // Update menu icon
-    const menuIcon = document.querySelector('#menuToggle i');
     if (menuIcon) {
-        menuIcon.className = isOpen ? 'fas fa-bars' : 'fas fa-times';
+        menuIcon.className = body.classList.contains('nav-open') ? 'fas fa-times' : 'fas fa-bars';
+    }
+}
+
+// Close menu when clicking outside
+function handleClickOutside(event) {
+    const sideNav = document.querySelector('.side-nav');
+    const menuToggle = document.getElementById('menuToggle');
+    
+    if (document.body.classList.contains('nav-open') &&
+        sideNav && !sideNav.contains(event.target) &&
+        menuToggle && !menuToggle.contains(event.target)) {
+        toggleMenu();
     }
 }
 
@@ -50,36 +71,24 @@ function toggleMenu() {
 function initializeApp() {
     console.log('Initializing app components...');
     
-    // Theme initialization and toggle
-    const currentTheme = initializeTheme();
+    // Initialize theme
+    initializeTheme();
+    
+    // Theme toggle
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
-        console.log('Setting up theme toggle');
-        themeToggle.innerHTML = `<i class="fas fa-${currentTheme === 'dark' ? 'sun' : 'moon'}"></i>`;
         themeToggle.addEventListener('click', toggleTheme);
     }
-
-    // Mobile menu toggle
+    
+    // Mobile menu
     const menuToggle = document.getElementById('menuToggle');
     if (menuToggle) {
-        console.log('Setting up menu toggle');
-        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
         menuToggle.addEventListener('click', toggleMenu);
     }
-
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-        const sideNav = document.querySelector('.side-nav');
-        const menuToggle = document.getElementById('menuToggle');
-        
-        if (sideNav && menuToggle && 
-            !sideNav.contains(e.target) && 
-            !menuToggle.contains(e.target) && 
-            document.body.classList.contains('nav-open')) {
-            toggleMenu();
-        }
-    });
-
+    
+    // Click outside handler
+    document.addEventListener('click', handleClickOutside);
+    
     // Format date in header
     const dateDisplay = document.querySelector('.date-display');
     if (dateDisplay) {
