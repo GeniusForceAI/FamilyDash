@@ -18,6 +18,25 @@ export class BillsManager {
     }
 
     async initialize() {
+        // Initialize theme from localStorage
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.body.classList.toggle('dark-mode', savedTheme === 'dark');
+        document.body.classList.toggle('light-mode', savedTheme === 'light');
+
+        // Set theme toggle checkbox state
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.checked = savedTheme === 'dark';
+            themeToggle.addEventListener('change', () => {
+                const newTheme = themeToggle.checked ? 'dark' : 'light';
+                localStorage.setItem('theme', newTheme);
+                document.body.classList.toggle('dark-mode', newTheme === 'dark');
+                document.body.classList.toggle('light-mode', newTheme === 'light');
+                // Trigger theme change event for charts
+                document.dispatchEvent(new Event('themeChanged'));
+            });
+        }
+
         await this.loadData();
         this.setupEventListeners();
         this.renderDashboard();
