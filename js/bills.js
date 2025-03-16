@@ -1,4 +1,5 @@
 import { auth } from './auth.js';
+import config from './config.js';
 
 class BillsManager {
     constructor() {
@@ -16,8 +17,8 @@ class BillsManager {
     async loadData() {
         try {
             const [billsResponse, accountsResponse] = await Promise.all([
-                auth.fetchWithAuth(`${window.config.apiUrl}/api/bills`),
-                auth.fetchWithAuth(`${window.config.apiUrl}/api/bills/accounts`)
+                auth.fetchWithAuth(config.getApiUrl(config.endpoints.bills)),
+                auth.fetchWithAuth(config.getApiUrl(config.endpoints.billsAccounts))
             ]);
 
             if (!billsResponse.ok || !accountsResponse.ok) {
@@ -224,7 +225,7 @@ class BillsManager {
 
         try {
             const response = await auth.fetchWithAuth(
-                `${window.config.apiUrl}/api/bills${formData.get('billId') ? '/' + formData.get('billId') : ''}`,
+                config.getApiUrl(config.endpoints.bills) + (formData.get('billId') ? '/' + formData.get('billId') : ''),
                 {
                     method: formData.get('billId') ? 'PUT' : 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -255,7 +256,7 @@ class BillsManager {
 
         try {
             const response = await auth.fetchWithAuth(
-                `${window.config.apiUrl}/api/bills/accounts`,
+                config.getApiUrl(config.endpoints.billsAccounts),
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
