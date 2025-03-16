@@ -9,105 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../js/config.js"></script>
-    <script type="module">
-        import { auth } from '../js/auth.js';
-        window.auth = auth;
-        
-        // Check authentication
-        if (!auth.isLoggedIn()) {
-            window.location.href = window.config.getPath('/pages/login.html');
-        }
-
-        // Load bills data when the page loads
-        async function loadBillsData() {
-            try {
-                console.log('Loading bills data...');
-                const response = await auth.fetchWithAuth(`${window.config.apiUrl}/api/finances`);
-                
-                if (!response.ok) {
-                    throw new Error(`Failed to load bills data: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log('Bills data loaded:', data);
-
-                // Update bills table
-                const billsTableBody = document.getElementById('billsTableBody');
-                if (billsTableBody) {
-                    billsTableBody.innerHTML = (data.bills || []).map(bill => `
-                        <tr>
-                            <td>${bill.name}</td>
-                            <td>${formatCurrency(bill.amount)}</td>
-                            <td>${bill.category}</td>
-                            <td>${bill.dueDate || 'N/A'}</td>
-                            <td>${bill.isRecurring ? 'Recurring' : 'One-time'}</td>
-                            <td>
-                                <button class="action-button" onclick="editBill('${bill.name}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="action-button" onclick="deleteBill('${bill.name}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
-                }
-
-                // Update total bills and progress
-                const totalBills = (data.bills || []).reduce((sum, bill) => sum + Number(bill.amount), 0);
-                const totalBillsElement = document.getElementById('totalBills');
-                if (totalBillsElement) {
-                    totalBillsElement.textContent = formatCurrency(totalBills);
-                }
-
-                // Calculate and update progress bar
-                const monthlyIncome = Number(data.income?.monthly || 0);
-                const billsPercentage = monthlyIncome ? (totalBills / monthlyIncome) * 100 : 0;
-                
-                const progressBar = document.querySelector('.progress');
-                if (progressBar) {
-                    progressBar.style.width = `${Math.min(billsPercentage, 100)}%`;
-                }
-                
-                const progressText = document.querySelector('.progress-text');
-                if (progressText) {
-                    progressText.textContent = `${billsPercentage.toFixed(1)}% of Monthly Income`;
-                }
-
-                // Calculate category breakdown
-                const categories = {};
-                (data.bills || []).forEach(bill => {
-                    categories[bill.category] = (categories[bill.category] || 0) + Number(bill.amount);
-                });
-
-                // Update category breakdown display
-                const categoryBreakdown = document.getElementById('billsCategoryBreakdown');
-                if (categoryBreakdown) {
-                    categoryBreakdown.innerHTML = Object.entries(categories).map(([category, amount]) => `
-                        <div class="stat-item">
-                            <span>${category}</span>
-                            <span>${formatCurrency(amount)}</span>
-                        </div>
-                    `).join('');
-                }
-
-            } catch (error) {
-                console.error('Error loading bills data:', error);
-                alert('Failed to load bills data. Please refresh the page.');
-            }
-        }
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(amount);
-        }
-
-        // Load data when the page is ready
-        document.addEventListener('DOMContentLoaded', loadBillsData);
-    </script>
+    <script type="module" src="../js/bills.js"></script>
     <script src="../js/app.js"></script>
 </head>
 <body class="dark-mode">
@@ -158,48 +62,81 @@
     <main class="main-content">
         <div class="page-header">
             <h1>Bills Management</h1>
-            <button class="action-button" id="addBillBtn">
-                <i class="fas fa-plus"></i>
-                Add Bill
-            </button>
+            <div class="header-actions">
+                <button class="action-button" id="addAccountBtn">
+                    <i class="fas fa-university"></i>
+                    Add Account
+                </button>
+                <button class="action-button primary" id="addBillBtn">
+                    <i class="fas fa-plus"></i>
+                    Add Bill
+                </button>
+            </div>
         </div>
 
-        <!-- Bills Overview -->
+        <!-- Overview Cards -->
         <div class="dashboard-grid">
             <!-- Bills Summary -->
-            <div class="card bills-summary">
+            <div class="card">
                 <div class="card-header">
-                    <h2>Monthly Overview</h2>
+                    <h2>Bills Overview</h2>
                 </div>
                 <div class="card-content">
-                    <div class="bills-total">
-                        <span>Total Monthly Bills:</span>
-                        <span id="totalBills">$0.00</span>
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Bills</span>
+                            <span class="stat-value" id="totalBills">$0.00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Available Funds</span>
+                            <span class="stat-value" id="totalAccounts">$0.00</span>
+                        </div>
                     </div>
                     <div class="bills-progress">
                         <div class="progress-bar">
                             <div class="progress"></div>
                         </div>
-                        <span class="progress-text">0% of Monthly Income</span>
+                        <span class="progress-text">Bills coverage: 0% of available funds</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Category Breakdown -->
+            <!-- Visual Analytics -->
             <div class="card">
                 <div class="card-header">
-                    <h2>Category Breakdown</h2>
+                    <h2>Bills by Category</h2>
                 </div>
-                <div class="card-content">
-                    <div id="billsCategoryBreakdown">
-                        <!-- Categories will be dynamically added here -->
-                    </div>
+                <div class="card-content chart-container">
+                    <canvas id="billsByCategoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bills Timeline -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Bills Timeline</h2>
+                </div>
+                <div class="card-content chart-container">
+                    <canvas id="billsTimelineChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Account Distribution -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Account Distribution</h2>
+                </div>
+                <div class="card-content chart-container">
+                    <canvas id="accountDistributionChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Bills List -->
+        <!-- Bills Table -->
         <div class="card">
+            <div class="card-header">
+                <h2>Bills List</h2>
+            </div>
             <div class="card-content">
                 <div class="table-container">
                     <table class="data-table">
@@ -207,13 +144,38 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Amount</th>
-                                <th>Category</th>
                                 <th>Due Date</th>
                                 <th>Status</th>
+                                <th>Payment Account</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="billsTableBody">
+                            <!-- Bills will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accounts Table -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Payment Accounts</h2>
+            </div>
+            <div class="card-content">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Account Name</th>
+                                <th>Balance</th>
+                                <th>Type</th>
+                                <th>Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody id="accountsTableBody">
+                            <!-- Accounts will be dynamically added here -->
                         </tbody>
                     </table>
                 </div>
@@ -227,35 +189,95 @@
             <div class="card">
                 <div class="card-header">
                     <h2 id="billModalTitle">Add Bill</h2>
-                    <button class="close-button" onclick="closeBillModal()">
+                    <button class="close-button" onclick="billsManager.closeBillModal()">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
                 <div class="card-content">
                     <form id="billForm">
+                        <input type="hidden" name="billId">
                         <div class="form-group">
-                            <label for="billName">Name</label>
-                            <input type="text" id="billName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="billCategory">Category</label>
-                            <select id="billCategory" required>
-                                <option value="Housing">Housing</option>
-                                <option value="Transportation">Transportation</option>
-                                <option value="Utilities">Utilities</option>
-                                <option value="Insurance">Insurance</option>
-                                <option value="Other">Other</option>
-                            </select>
+                            <label for="billName">Bill Name</label>
+                            <input type="text" id="billName" name="name" required>
                         </div>
                         <div class="form-group">
                             <label for="billAmount">Amount</label>
-                            <input type="number" id="billAmount" step="0.01" required>
+                            <input type="number" id="billAmount" name="amount" step="0.01" required>
                         </div>
-                        <input type="hidden" id="billEditMode" value="add">
-                        <input type="hidden" id="billOriginalName" value="">
+                        <div class="form-group">
+                            <label for="billDueDate">Due Date</label>
+                            <input type="date" id="billDueDate" name="dueDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="billCategory">Category</label>
+                            <select id="billCategory" name="category" required>
+                                <option value="utilities">Utilities</option>
+                                <option value="rent">Rent/Mortgage</option>
+                                <option value="insurance">Insurance</option>
+                                <option value="phone">Phone/Internet</option>
+                                <option value="subscriptions">Subscriptions</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="billAccount">Payment Account</label>
+                            <select id="billAccount" name="account">
+                                <option value="">Select Account</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="recurring" id="billRecurring">
+                                Recurring Bill
+                            </label>
+                        </div>
+                        <div class="form-group" id="recurringPeriodGroup" style="display: none;">
+                            <label for="recurringPeriod">Recurring Period</label>
+                            <select id="recurringPeriod" name="recurringPeriod">
+                                <option value="monthly">Monthly</option>
+                                <option value="quarterly">Quarterly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
                         <div class="form-actions">
-                            <button type="submit" class="action-button" id="billSubmitBtn">Add Bill</button>
-                            <button type="button" class="cancel-button" onclick="closeBillModal()">Cancel</button>
+                            <button type="submit" class="action-button primary">Save Bill</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Modal -->
+    <div id="accountModal" class="modal">
+        <div class="modal-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Add Payment Account</h2>
+                    <button class="close-button" onclick="billsManager.closeAccountModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <form id="accountForm">
+                        <div class="form-group">
+                            <label for="accountName">Account Name</label>
+                            <input type="text" id="accountName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="accountBalance">Current Balance</label>
+                            <input type="number" id="accountBalance" name="balance" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="accountType">Account Type</label>
+                            <select id="accountType" name="type" required>
+                                <option value="checking">Checking</option>
+                                <option value="savings">Savings</option>
+                                <option value="credit">Credit Card</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="action-button primary">Save Account</button>
                         </div>
                     </form>
                 </div>

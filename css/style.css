@@ -923,3 +923,126 @@ h3 { font-size: 1.25rem; }
 .light-mode .secondary-button:hover {
     background: var(--light-hover);
 }
+
+/* Bills Management Specific Styles */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin: 1rem 0;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.bills-progress {
+    margin-top: 1rem;
+}
+
+.progress-bar {
+    height: 8px;
+    background: var(--bg-muted);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.table-container {
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-muted);
+}
+
+.data-table tr:hover {
+    background: var(--hover-bg);
+}
+
+.data-table tr.overdue td {
+    color: var(--danger);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Dark mode specific chart styles */
+.dark-mode .chart-container canvas {
+    filter: brightness(0.9);
+}

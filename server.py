@@ -11,16 +11,17 @@ import os
 # Load environment variables from .env file
 load_dotenv()
 
-from app.DataAccessLayer.finance_dao import FinanceDAO
-from app.DataAccessLayer.user_dao import UserDAO
-from app.models.financial_models import Income, Bill, Transaction
-from app.models.user_models import UserCreate, User
+from dao.finance_dao import FinanceDAO
+from dao.user_dao import UserDAO
+from models.financial_models import Income, Bill, Transaction
+from models.user_models import UserCreate, User
 from app.auth.auth_utils import (
     create_access_token,
     get_current_user,
     get_current_active_admin,
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
+from routers import bills
 
 # Configure logging
 logging.basicConfig(
@@ -59,6 +60,9 @@ app.add_middleware(
 # Initialize DAOs
 finance_dao = FinanceDAO()
 user_dao = UserDAO()
+
+# Include routers
+app.include_router(bills.router)
 
 @app.on_event("startup")
 async def startup_event():

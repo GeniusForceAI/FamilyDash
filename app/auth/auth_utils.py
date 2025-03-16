@@ -4,8 +4,8 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 import os
-from ..models.user_models import User, UserInDB
-from ..DataAccessLayer.user_dao import UserDAO
+from models.user_models import User
+from dao.user_dao import UserDAO
 
 # Configuration
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-here")  # Change in production
