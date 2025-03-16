@@ -3,286 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bills Management - FamilyDash</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Baker Family Finances - Bills</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../js/config.js"></script>
-    <script type="module" src="../js/bills.js"></script>
-    <script src="../js/app.js"></script>
 </head>
-<body class="dark-mode">
-    <!-- Mobile Menu Toggle -->
-    <button id="menuToggle" class="menu-toggle">
-        <i class="fas fa-bars"></i>
-    </button>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>Baker Finances</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li class="active"><a href="bills.html"><i class="fas fa-file-invoice-dollar"></i>Bills</a></li>
+                <li><a href="income.html"><i class="fas fa-money-bill-wave"></i>Income</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i>Settings</a></li>
+            </ul>
+            <div class="theme-toggle">
+                <i class="fas fa-moon"></i>
+                <span>Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </nav>
 
-    <!-- Theme Toggle -->
-    <button id="themeToggle" class="theme-toggle">
-        <i class="fas fa-moon"></i>
-    </button>
-
-    <!-- Side Navigation -->
-    <nav class="side-nav">
-        <div class="nav-header">
-            <div class="nav-logo"></div>
-            <h2>Baker Finances</h2>
-        </div>
-        <ul class="nav-links">
-            <div class="nav-item">
-                <a href="../index.html">
-                    <i class="fas fa-chart-line"></i>
-                    Dashboard
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="payments.html">
-                    <i class="fas fa-money-bill-wave"></i>
-                    Payments
-                </a>
-            </div>
-            <div class="nav-item active">
-                <a href="bills.html">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                    Bills
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="settings.html">
-                    <i class="fas fa-cog"></i>
-                    Settings
-                </a>
-            </div>
-        </ul>
-    </nav>
-
-    <main class="main-content">
-        <div class="page-header">
-            <h1>Bills Management</h1>
-            <div class="header-actions">
-                <button class="action-button" id="addAccountBtn">
-                    <i class="fas fa-university"></i>
-                    Add Account
-                </button>
-                <button class="action-button primary" id="addBillBtn">
-                    <i class="fas fa-plus"></i>
-                    Add Bill
-                </button>
-            </div>
-        </div>
-
-        <!-- Overview Cards -->
-        <div class="dashboard-grid">
-            <!-- Bills Summary -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>Bills Overview</h2>
+        <main class="main-content">
+            <header class="header">
+                <h1>Bills Management</h1>
+                <div class="header-controls">
+                    <button id="addBillBtn" class="btn primary">
+                        <i class="fas fa-plus"></i> Add Bill
+                    </button>
+                    <button id="addAccountBtn" class="btn secondary">
+                        <i class="fas fa-plus"></i> Add Account
+                    </button>
                 </div>
-                <div class="card-content">
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <span class="stat-label">Total Bills</span>
-                            <span class="stat-value" id="totalBills">$0.00</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Available Funds</span>
-                            <span class="stat-value" id="totalAccounts">$0.00</span>
-                        </div>
+            </header>
+
+            <div class="overview-card">
+                <div class="overview-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Bills</span>
+                        <span id="totalBills" class="stat-value">$0.00</span>
                     </div>
-                    <div class="bills-progress">
-                        <div class="progress-bar">
-                            <div class="progress"></div>
-                        </div>
-                        <span class="progress-text">Bills coverage: 0% of available funds</span>
+                    <div class="stat-item">
+                        <span class="stat-label">Due This Week</span>
+                        <span id="dueThisWeek" class="stat-value">$0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Due This Month</span>
+                        <span id="dueThisMonth" class="stat-value">$0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Accounts</span>
+                        <span id="totalAccounts" class="stat-value">$0.00</span>
                     </div>
                 </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress"></div>
+                    </div>
+                    <span class="progress-text">Bills coverage: 0% of available funds</span>
+                </div>
             </div>
 
-            <!-- Visual Analytics -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>Bills by Category</h2>
-                </div>
-                <div class="card-content chart-container">
+            <div class="analytics-grid">
+                <div class="chart-card">
+                    <h3>Bills by Category</h3>
                     <canvas id="billsByCategoryChart"></canvas>
                 </div>
-            </div>
-
-            <!-- Bills Timeline -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>Bills Timeline</h2>
-                </div>
-                <div class="card-content chart-container">
+                <div class="chart-card">
+                    <h3>Bills Timeline</h3>
                     <canvas id="billsTimelineChart"></canvas>
                 </div>
-            </div>
-
-            <!-- Account Distribution -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>Account Distribution</h2>
-                </div>
-                <div class="card-content chart-container">
+                <div class="chart-card">
+                    <h3>Account Distribution</h3>
                     <canvas id="accountDistributionChart"></canvas>
                 </div>
             </div>
-        </div>
 
-        <!-- Bills Table -->
-        <div class="card">
-            <div class="card-header">
-                <h2>Bills List</h2>
-            </div>
-            <div class="card-content">
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Amount</th>
-                                <th>Due Date</th>
-                                <th>Status</th>
-                                <th>Payment Account</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="billsTableBody">
-                            <!-- Bills will be dynamically added here -->
-                        </tbody>
-                    </table>
+            <div class="tables-container">
+                <div class="table-section">
+                    <h2>Bills</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Amount</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                    <th>Payment Account</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="billsTableBody">
+                                <tr><td colspan="6" class="no-data">Loading bills...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-section">
+                    <h2>Accounts</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Balance</th>
+                                    <th>Type</th>
+                                    <th>Last Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accountsTableBody">
+                                <tr><td colspan="4" class="no-data">Loading accounts...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Accounts Table -->
-        <div class="card">
-            <div class="card-header">
-                <h2>Payment Accounts</h2>
-            </div>
-            <div class="card-content">
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Account Name</th>
-                                <th>Balance</th>
-                                <th>Type</th>
-                                <th>Last Updated</th>
-                            </tr>
-                        </thead>
-                        <tbody id="accountsTableBody">
-                            <!-- Accounts will be dynamically added here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <!-- Bill Modal -->
     <div id="billModal" class="modal">
         <div class="modal-content">
-            <div class="card">
-                <div class="card-header">
-                    <h2 id="billModalTitle">Add Bill</h2>
-                    <button class="close-button" onclick="billsManager.closeBillModal()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="card-content">
-                    <form id="billForm">
-                        <input type="hidden" name="billId">
-                        <div class="form-group">
-                            <label for="billName">Bill Name</label>
-                            <input type="text" id="billName" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="billAmount">Amount</label>
-                            <input type="number" id="billAmount" name="amount" step="0.01" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="billDueDate">Due Date</label>
-                            <input type="date" id="billDueDate" name="dueDate" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="billCategory">Category</label>
-                            <select id="billCategory" name="category" required>
-                                <option value="utilities">Utilities</option>
-                                <option value="rent">Rent/Mortgage</option>
-                                <option value="insurance">Insurance</option>
-                                <option value="phone">Phone/Internet</option>
-                                <option value="subscriptions">Subscriptions</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="billAccount">Payment Account</label>
-                            <select id="billAccount" name="account">
-                                <option value="">Select Account</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="recurring" id="billRecurring">
-                                Recurring Bill
-                            </label>
-                        </div>
-                        <div class="form-group" id="recurringPeriodGroup" style="display: none;">
-                            <label for="recurringPeriod">Recurring Period</label>
-                            <select id="recurringPeriod" name="recurringPeriod">
-                                <option value="monthly">Monthly</option>
-                                <option value="quarterly">Quarterly</option>
-                                <option value="yearly">Yearly</option>
-                            </select>
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit" class="action-button primary">Save Bill</button>
-                        </div>
-                    </form>
-                </div>
+            <div class="modal-header">
+                <h2>Add New Bill</h2>
+                <button id="closeBillModal" class="close-button">&times;</button>
             </div>
+            <form id="billForm">
+                <input type="hidden" name="billId">
+                <div class="form-group">
+                    <label for="billName">Bill Name</label>
+                    <input type="text" id="billName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="billAmount">Amount</label>
+                    <input type="number" id="billAmount" name="amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="billDueDate">Due Date</label>
+                    <input type="date" id="billDueDate" name="dueDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="billCategory">Category</label>
+                    <select id="billCategory" name="category" required>
+                        <option value="utilities">Utilities</option>
+                        <option value="rent">Rent/Mortgage</option>
+                        <option value="insurance">Insurance</option>
+                        <option value="subscriptions">Subscriptions</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="billAccount">Payment Account</label>
+                    <select id="billAccount" name="account" required></select>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="billRecurring" name="recurring">
+                        Recurring Bill
+                    </label>
+                </div>
+                <div id="recurringPeriodGroup" class="form-group" style="display: none;">
+                    <label for="recurringPeriod">Recurring Period</label>
+                    <select id="recurringPeriod" name="recurringPeriod">
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancelBillBtn" class="btn secondary">Cancel</button>
+                    <button type="button" id="saveBillBtn" class="btn primary">Save Bill</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Account Modal -->
     <div id="accountModal" class="modal">
         <div class="modal-content">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Add Payment Account</h2>
-                    <button class="close-button" onclick="billsManager.closeAccountModal()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="card-content">
-                    <form id="accountForm">
-                        <div class="form-group">
-                            <label for="accountName">Account Name</label>
-                            <input type="text" id="accountName" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="accountBalance">Current Balance</label>
-                            <input type="number" id="accountBalance" name="balance" step="0.01" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="accountType">Account Type</label>
-                            <select id="accountType" name="type" required>
-                                <option value="checking">Checking</option>
-                                <option value="savings">Savings</option>
-                                <option value="credit">Credit Card</option>
-                            </select>
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit" class="action-button primary">Save Account</button>
-                        </div>
-                    </form>
-                </div>
+            <div class="modal-header">
+                <h2>Add New Account</h2>
+                <button id="closeAccountModal" class="close-button">&times;</button>
             </div>
+            <form id="accountForm">
+                <div class="form-group">
+                    <label for="accountName">Account Name</label>
+                    <input type="text" id="accountName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="accountBalance">Balance</label>
+                    <input type="number" id="accountBalance" name="balance" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="accountType">Account Type</label>
+                    <select id="accountType" name="type" required>
+                        <option value="checking">Checking</option>
+                        <option value="savings">Savings</option>
+                        <option value="credit">Credit Card</option>
+                        <option value="investment">Investment</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancelAccountBtn" class="btn secondary">Cancel</button>
+                    <button type="button" id="saveAccountBtn" class="btn primary">Save Account</button>
+                </div>
+            </form>
         </div>
     </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script type="module">
+        import { BillsManager } from '../js/bills.js';
+        window.billsManager = new BillsManager();
+        document.addEventListener('DOMContentLoaded', () => window.billsManager.initialize());
+    </script>
 </body>
 </html>
