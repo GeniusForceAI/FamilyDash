@@ -44,9 +44,12 @@ origins = [
     "http://localhost:5000",
     "http://127.0.0.1:8000",
     "http://localhost:8000",
+    "http://127.0.0.1:8001",
+    "http://localhost:8001",
     "http://127.0.0.1",
     "http://localhost",
-    "https://geniusforceai.github.io"
+    "https://geniusforceai.github.io",
+    "https://geniusforceai.github.io/FamilyDash"
 ]
 
 app.add_middleware(
@@ -54,7 +57,8 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # Initialize DAOs
