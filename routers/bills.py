@@ -4,14 +4,16 @@ from models.bills import Bill, Account
 from dao.bills_dao import BillsDAO
 from app.auth.auth_utils import get_current_user
 
+# Remove trailing slash from prefix
 router = APIRouter(prefix="/api/bills", tags=["bills"])
 bills_dao = BillsDAO()
 
-@router.post("/", response_model=str)
+# Remove trailing slashes from all routes
+@router.post("", response_model=str)
 async def create_bill(bill: Bill, current_user: dict = Depends(get_current_user)):
     return await bills_dao.create_bill(bill)
 
-@router.get("/", response_model=List[Bill])
+@router.get("", response_model=List[Bill])
 async def get_bills(status: str = None, current_user: dict = Depends(get_current_user)):
     return await bills_dao.get_bills(status)
 
@@ -27,7 +29,7 @@ async def delete_bill(bill_id: str, current_user: dict = Depends(get_current_use
 async def get_bill_statistics(current_user: dict = Depends(get_current_user)):
     return await bills_dao.get_bill_statistics()
 
-# Account management endpoints
+# Account management endpoints - keep /accounts as it's part of the path
 @router.post("/accounts", response_model=str)
 async def create_account(account: Account, current_user: dict = Depends(get_current_user)):
     return await bills_dao.create_account(account)
