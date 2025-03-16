@@ -11,6 +11,13 @@
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module">
+        import { auth } from '../js/auth.js';
+        import config from '../js/config.js';
+        window.auth = auth;
+        window.config = config;
+    </script>
+    <script src="../js/bills.js" type="module"></script>
 </head>
 <body class="dark-mode">
     <div class="app-container">
@@ -63,8 +70,8 @@
                         <span id="dueThisMonth" class="stat-value">$0.00</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">Total Accounts</span>
-                        <span id="totalAccounts" class="stat-value">$0.00</span>
+                        <span class="stat-label">Monthly Subscriptions</span>
+                        <span id="subscriptionTotal" class="stat-value">$0.00</span>
                     </div>
                 </div>
                 <div class="progress-container">
@@ -76,42 +83,27 @@
             </div>
 
             <div class="analytics-grid">
-                <div class="chart-card">
+                <div class="card chart-card">
                     <h3>Bills by Category</h3>
-                    <canvas id="billsByCategoryChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="billsByCategoryChart"></canvas>
+                    </div>
                 </div>
-                <div class="chart-card">
+                <div class="card chart-card">
                     <h3>Bills Timeline</h3>
-                    <canvas id="billsTimelineChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="billsTimelineChart"></canvas>
+                    </div>
                 </div>
-                <div class="chart-card">
+                <div class="card chart-card">
                     <h3>Account Distribution</h3>
-                    <canvas id="accountDistributionChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="accountDistributionChart"></canvas>
+                    </div>
                 </div>
             </div>
 
             <div class="tables-container">
-                <div class="table-section">
-                    <h2>Bills</h2>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Amount</th>
-                                    <th>Due Date</th>
-                                    <th>Status</th>
-                                    <th>Payment Account</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="billsTableBody">
-                                <tr><td colspan="6" class="no-data">Loading bills...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
                 <div class="table-section">
                     <h2>Accounts</h2>
                     <div class="table-wrapper">
@@ -121,11 +113,51 @@
                                     <th>Name</th>
                                     <th>Balance</th>
                                     <th>Type</th>
-                                    <th>Last Updated</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="accountsTableBody">
                                 <tr><td colspan="4" class="no-data">Loading accounts...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-section">
+                    <h2>Subscriptions</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Amount</th>
+                                    <th>Billing Cycle</th>
+                                    <th>Payment Account</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subscriptionsTableBody">
+                                <tr><td colspan="5" class="no-data">Loading subscriptions...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-section">
+                    <h2>Bills</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Amount</th>
+                                    <th>Due Date</th>
+                                    <th>Payment Account</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="billsTableBody">
+                                <tr><td colspan="5" class="no-data">Loading bills...</td></tr>
                             </tbody>
                         </table>
                     </div>

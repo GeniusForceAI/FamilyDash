@@ -1,6 +1,10 @@
 // Domain for API calls - using config from config.js
 const apiBaseUrl = window.config.apiUrl;
 
+// Import components
+import { Navigation } from './components/Navigation.js';
+import { Theme } from './components/Theme.js';
+
 // State Management
 let state = {
     income: {
@@ -11,83 +15,17 @@ let state = {
     payments: []
 };
 
-// Theme handling
-function initializeTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.body.classList.remove('dark-mode', 'light-mode');
-    document.body.classList.add(`${savedTheme}-mode`);
-    
-    // Update theme toggle icon
-    const themeIcon = document.querySelector('#themeToggle i');
-    if (themeIcon) {
-        themeIcon.className = `fas fa-${savedTheme === 'dark' ? 'sun' : 'moon'}`;
-    }
-}
-
-function toggleTheme() {
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    const newTheme = isDarkMode ? 'light' : 'dark';
-    
-    // Update body class
-    document.body.classList.remove('dark-mode', 'light-mode');
-    document.body.classList.add(`${newTheme}-mode`);
-    
-    // Update icon
-    const themeIcon = document.querySelector('#themeToggle i');
-    if (themeIcon) {
-        themeIcon.className = `fas fa-${newTheme === 'dark' ? 'sun' : 'moon'}`;
-    }
-    
-    // Save preference
-    localStorage.setItem('theme', newTheme);
-}
-
-// Mobile menu handling
-function toggleMenu() {
-    const body = document.body;
-    const menuIcon = document.querySelector('#menuToggle i');
-    
-    body.classList.toggle('nav-open');
-    
-    // Update menu icon
-    if (menuIcon) {
-        menuIcon.className = body.classList.contains('nav-open') ? 'fas fa-times' : 'fas fa-bars';
-    }
-}
-
-// Close menu when clicking outside
-function handleClickOutside(event) {
-    const sideNav = document.querySelector('.side-nav');
-    const menuToggle = document.getElementById('menuToggle');
-    
-    if (document.body.classList.contains('nav-open') &&
-        sideNav && !sideNav.contains(event.target) &&
-        menuToggle && !menuToggle.contains(event.target)) {
-        toggleMenu();
-    }
-}
+// Initialize components
+const navigation = new Navigation();
+const theme = new Theme();
 
 // Initialize event listeners
 function initializeApp() {
     console.log('Initializing app components...');
     
-    // Initialize theme
-    initializeTheme();
-    
-    // Theme toggle
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', toggleTheme);
-    }
-    
-    // Mobile menu
-    const menuToggle = document.getElementById('menuToggle');
-    if (menuToggle) {
-        menuToggle.addEventListener('click', toggleMenu);
-    }
-    
-    // Click outside handler
-    document.addEventListener('click', handleClickOutside);
+    // Initialize navigation and theme
+    navigation.initialize();
+    theme.initialize();
     
     // Format date in header
     const dateDisplay = document.querySelector('.date-display');
