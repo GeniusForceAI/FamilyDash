@@ -7,17 +7,17 @@ const config = {
 
     // API base URL - will be different in production vs development
     apiUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://localhost:8001'  // Local FastAPI server
+        ? 'http://localhost:8000'  // Local FastAPI server
         : 'https://web-production-f4beb.up.railway.app',  // Railway deployment
 
     // API endpoints - consistent between environments
     endpoints: {
-        token: '/token/',
-        register: '/api/users/register/',
-        finances: '/api/finances/',
-        health: '/api/health/',
-        bills: '/api/bills/',
-        billsAccounts: '/api/bills/accounts/'
+        token: '/token',  // Removed trailing slash to match FastAPI
+        register: '/api/users/register',
+        finances: '/api/finances',
+        health: '/api/health',
+        bills: '/api/bills',
+        billsAccounts: '/api/bills/accounts'
     },
 
     // Helper function to get full path for frontend routes
