@@ -21,51 +21,24 @@
 </head>
 <body class="dark-mode">
     <div class="app-container">
-        <nav class="navbar">
-            <div class="nav-brand">
-                <a href="../index.html">
-                    <i class="fas fa-wallet"></i>
-                    <span>Baker Finances</span>
-                </a>
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>Baker Finances</span>
             </div>
-
-            <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
-                <i class="fas fa-bars"></i>
-            </button>
-
-            <div class="nav-menu" aria-hidden="true">
-                <ul class="nav-items">
-                    <li class="nav-item">
-                        <a href="../index.html">
-                            <i class="fas fa-home"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item active">
-                        <a href="bills.html">
-                            <i class="fas fa-file-invoice-dollar"></i>
-                            <span>Bills</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="income.html">
-                            <i class="fas fa-money-bill-wave"></i>
-                            <span>Income</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="settings.html">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
-                        </a>
-                    </li>
-                </ul>
-                <div class="nav-footer">
-                    <button id="logoutBtn" class="btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </button>
-                </div>
+            <ul class="nav-links">
+                <li><a href="../index.html"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li class="active"><a href="bills.html"><i class="fas fa-file-invoice-dollar"></i>Bills</a></li>
+                <li><a href="income.html"><i class="fas fa-money-bill-wave"></i>Income</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i>Settings</a></li>
+            </ul>
+            <div class="theme-toggle">
+                <i class="fas fa-moon"></i>
+                <span>Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider round"></span>
+                </label>
             </div>
         </nav>
 
