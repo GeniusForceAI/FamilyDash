@@ -7,162 +7,134 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="js/config.js"></script>
 </head>
 <body class="dark-mode">
-    <!-- Header Controls -->
-    <div class="header-controls">
-        <button id="menuToggle">
-            <i class="fas fa-bars"></i>
-        </button>
-        <button id="themeToggle">
-            <i class="fas fa-sun"></i>
-        </button>
-    </div>
-
-    <!-- Side Navigation -->
-    <nav class="side-nav">
-        <div class="nav-header">
-            <div class="nav-logo"></div>
-            <h2>Baker Finances</h2>
-        </div>
-        <nav class="nav-links">
-            <div class="nav-item active">
-                <a href="index.html">
-                    <i class="fas fa-chart-line"></i>
-                    Dashboard
-                </a>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>Baker Finances</span>
             </div>
-            <div class="nav-item">
-                <a href="./pages/payments.html">
-                    <i class="fas fa-money-bill-wave"></i>
-                    Payments
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="./pages/bills.html">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                    Bills
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="./pages/settings.html">
-                    <i class="fas fa-cog"></i>
-                    Settings
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="#" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a>
+            <ul class="nav-links">
+                <li class="active"><a href="index.html"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="pages/bills.html"><i class="fas fa-file-invoice-dollar"></i>Bills</a></li>
+                <li><a href="pages/expenses.html"><i class="fas fa-wallet"></i>Expenses</a></li>
+                <li><a href="pages/settings.html"><i class="fas fa-cog"></i>Settings</a></li>
+            </ul>
+            <div class="theme-toggle">
+                <i class="fas fa-moon"></i>
+                <span>Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider round"></span>
+                </label>
             </div>
         </nav>
-    </nav>
 
-    <main class="main-content">
-        <!-- Dashboard Page -->
-        <div id="dashboard" class="page active">
-            <div id="dashboardError" class="error-message" style="display: none;"></div>
-            <div class="page-header">
+        <main class="main-content">
+            <header class="header">
                 <h1>Dashboard Overview</h1>
-                <div class="date-display"></div>
-            </div>
-
-            <!-- Financial Summary Banner -->
-            <div class="financial-summary-banner">
-                <div class="summary-item">
-                    <span class="summary-label">Total Biweekly Bills:</span>
-                    <span id="totalBills" class="summary-value">$0.00</span>
+                <div class="header-controls">
+                    <span class="user-greeting">Welcome back, <span id="userName">User</span>!</span>
                 </div>
-                <div class="summary-item">
-                    <div class="progress-container">
-                        <div class="progress-bar">
-                            <div class="progress"></div>
-                        </div>
-                        <span class="progress-text">0% of Biweekly Income</span>
-                    </div>
-                </div>
-            </div>
+            </header>
 
-            <div class="dashboard-grid">
-                <!-- Income Summary -->
-                <div class="card income-summary">
-                    <div class="card-header">
-                        <h2>Income Summary</h2>
-                        <button class="action-button" id="editIncomeBtn">
-                            <i class="fas fa-pencil"></i>
-                        </button>
+            <!-- Financial Overview -->
+            <div class="financial-summary">
+                <div class="stat-card">
+                    <div class="stat-icon income">
+                        <i class="fas fa-money-bill-wave"></i>
                     </div>
-                    <div class="card-content">
-                        <div class="income-item">
-                            <span>Biweekly</span>
-                            <span id="biweeklyIncome">$0.00</span>
-                        </div>
-                        <div class="income-item">
-                            <span>Monthly</span>
-                            <span id="monthlyIncome">$0.00</span>
-                        </div>
+                    <div class="stat-content">
+                        <h3>Monthly Income</h3>
+                        <p class="stat-value">$2,779.75</p>
                     </div>
                 </div>
 
-                <!-- Bills Summary -->
-                <div class="card bills-summary">
-                    <div class="card-header">
-                        <h2>Bills Summary</h2>
-                        <button class="action-button" id="addBillBtn">
-                            <i class="fas fa-plus"></i>
-                        </button>
+                <div class="stat-card">
+                    <div class="stat-icon bills">
+                        <i class="fas fa-file-invoice-dollar"></i>
                     </div>
-                    <div class="card-content">
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Amount</th>
-                                        <th>Category</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="billsTableBody">
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="stat-content">
+                        <h3>Monthly Bills</h3>
+                        <p class="stat-value">$800.00</p>
                     </div>
                 </div>
 
-                <!-- Payment Stats -->
-                <div class="card payment-stats">
-                    <div class="card-header">
-                        <h2>Payment Statistics</h2>
+                <div class="stat-card">
+                    <div class="stat-icon expenses">
+                        <i class="fas fa-shopping-cart"></i>
                     </div>
-                    <div class="card-content">
-                        <div class="stat-item">
-                            <span>Total Payments This Month</span>
-                            <span id="totalPayments">$0.00</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>Remaining Budget</span>
-                            <span id="remainingBudget">$0.00</span>
-                        </div>
+                    <div class="stat-content">
+                        <h3>Monthly Expenses</h3>
+                        <p class="stat-value">$450.25</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon savings">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Monthly Savings</h3>
+                        <p class="stat-value">$1,529.50</p>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Payments Page -->
-        <div id="payments" class="page">
-            <div class="page-header">
-                <h1>Payment History</h1>
-                <button class="action-button" id="addPaymentBtn2">
-                    <i class="fas fa-plus"></i>
-                    Add Payment
-                </button>
+            <!-- Bills Overview -->
+            <div class="card bills-overview">
+                <div class="card-header">
+                    <h2>Bills Summary</h2>
+                    <button class="action-button" id="addBillBtn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Amount</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Shared Apartment</td>
+                                    <td>$800.00</td>
+                                    <td>March 1, 2025</td>
+                                    <td><span class="status paid">Paid</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Internet</td>
+                                    <td>$65.00</td>
+                                    <td>March 15, 2025</td>
+                                    <td><span class="status pending">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Phone Bill</td>
+                                    <td>$45.00</td>
+                                    <td>March 20, 2025</td>
+                                    <td><span class="status upcoming">Upcoming</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="card">
+
+            <!-- Recent Transactions -->
+            <div class="card recent-transactions">
+                <div class="card-header">
+                    <h2>Recent Transactions</h2>
+                </div>
                 <div class="card-content">
                     <div class="table-container">
                         <table class="data-table">
@@ -172,325 +144,54 @@
                                     <th>Description</th>
                                     <th>Category</th>
                                     <th>Amount</th>
-                                    <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="paymentsTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bills Page -->
-        <div id="bills" class="page">
-            <div class="page-header">
-                <h1>Bills Management</h1>
-                <button class="action-button" id="addBillBtn2">
-                    <i class="fas fa-plus"></i>
-                    Add Bill
-                </button>
-            </div>
-            <div class="card">
-                <div class="card-content">
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
+                            <tbody>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Amount</th>
-                                    <th>Category</th>
-                                    <th>Actions</th>
+                                    <td>Mar 15, 2025</td>
+                                    <td>Grocery Shopping</td>
+                                    <td>Food</td>
+                                    <td>-$125.50</td>
                                 </tr>
-                            </thead>
-                            <tbody id="billsTableBody2">
+                                <tr>
+                                    <td>Mar 14, 2025</td>
+                                    <td>Paycheck</td>
+                                    <td>Income</td>
+                                    <td>+$1,389.87</td>
+                                </tr>
+                                <tr>
+                                    <td>Mar 13, 2025</td>
+                                    <td>Gas Station</td>
+                                    <td>Transportation</td>
+                                    <td>-$45.00</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Settings Page -->
-        <div id="settings" class="page">
-            <div class="page-header">
-                <h1>Settings</h1>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h2>Application Settings</h2>
-                </div>
-                <div class="card-content">
-                    <div class="settings-group">
-                        <h3>Theme</h3>
-                        <p>Toggle between light and dark mode using the button in the top-right corner.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Payment Modal -->
-    <div id="paymentModal" class="modal">
-        <div class="modal-content">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Add Payment</h2>
-                    <button class="close-button" onclick="closePaymentModal()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="card-content">
-                    <form id="paymentForm">
-                        <div class="form-group">
-                            <label for="paymentDate">Date</label>
-                            <input type="date" id="paymentDate" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentDescription">Description</label>
-                            <input type="text" id="paymentDescription" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentCategory">Category</label>
-                            <select id="paymentCategory" required>
-                                <option value="Housing">Housing</option>
-                                <option value="Transportation">Transportation</option>
-                                <option value="Utilities">Utilities</option>
-                                <option value="Insurance">Insurance</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentAmount">Amount</label>
-                            <input type="number" id="paymentAmount" step="0.01" required>
-                        </div>
-                        <input type="hidden" id="paymentEditMode" value="add">
-                        <input type="hidden" id="paymentOriginalDate" value="">
-                        <div class="form-actions">
-                            <button type="submit" class="action-button" id="paymentSubmitBtn">Add Payment</button>
-                            <button type="button" class="cancel-button" onclick="closePaymentModal()">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bill Modal -->
-    <div id="billModal" class="modal">
-        <div class="modal-content">
-            <div class="card">
-                <div class="card-header">
-                    <h2 id="billModalTitle">Add Bill</h2>
-                    <button class="close-button" onclick="closeBillModal()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="card-content">
-                    <form id="billForm">
-                        <div class="form-group">
-                            <label for="billName">Name</label>
-                            <input type="text" id="billName" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="billCategory">Category</label>
-                            <select id="billCategory" name="category" required>
-                                <option value="Housing">Housing</option>
-                                <option value="Transportation">Transportation</option>
-                                <option value="Utilities">Utilities</option>
-                                <option value="Insurance">Insurance</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="billAmount">Amount</label>
-                            <input type="number" id="billAmount" name="amount" step="0.01" required>
-                        </div>
-                        <input type="hidden" id="billEditMode" value="add">
-                        <input type="hidden" id="billOriginalName" value="">
-                        <div class="form-actions">
-                            <button type="submit" class="action-button" id="billSubmitBtn">Add Bill</button>
-                            <button type="button" class="cancel-button" onclick="closeBillModal()">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Income Modal -->
-    <div id="incomeModal" class="modal">
-        <div class="modal-content">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Update Income</h2>
-                    <button class="close-button" onclick="closeIncomeModal()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="card-content">
-                    <form id="incomeForm">
-                        <div class="form-group">
-                            <label for="biweeklyIncomeInput">Biweekly Income</label>
-                            <input type="number" id="biweeklyIncomeInput" name="biweekly" step="0.01" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="monthlyIncomeInput">Monthly Income</label>
-                            <input type="number" id="monthlyIncomeInput" name="monthly" step="0.01" required>
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit" class="action-button">Update Income</button>
-                            <button type="button" class="cancel-button" onclick="closeIncomeModal()">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+        </main>
     </div>
 
     <script type="module">
         import { auth } from './js/auth.js';
         import { theme } from './js/theme.js';
         
-        // Check authentication on page load
+        // Initialize theme
+        theme.initialize();
+        
+        // Check authentication
         if (!auth.isLoggedIn()) {
-            console.log('Not logged in, redirecting to login page');
             window.location.href = window.config.getPath('/pages/login.html');
         }
 
-        // Initialize app when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded - initializing app');
-            
-            // Initialize theme
-            theme.initialize();
-            theme.setupToggleButton();
-            
-            // Setup mobile menu
-            const menuToggle = document.getElementById('menuToggle');
-            if (menuToggle) {
-                menuToggle.addEventListener('click', () => {
-                    document.body.classList.toggle('nav-open');
-                    const icon = menuToggle.querySelector('i');
-                    if (icon) {
-                        icon.className = document.body.classList.contains('nav-open') ? 'fas fa-times' : 'fas fa-bars';
-                    }
-                });
-            }
-            
-            // Close menu when clicking outside
-            document.addEventListener('click', (e) => {
-                const sideNav = document.querySelector('.side-nav');
-                if (document.body.classList.contains('nav-open') &&
-                    sideNav && !sideNav.contains(e.target) &&
-                    menuToggle && !menuToggle.contains(e.target)) {
-                    document.body.classList.remove('nav-open');
-                    const icon = menuToggle.querySelector('i');
-                    if (icon) {
-                        icon.className = 'fas fa-bars';
-                    }
-                }
-            });
-            
-            // Load financial data
-            loadFinancialData();
-            
-            // Add logout button to nav
-            const nav = document.querySelector('.nav-links');
-            const logoutItem = document.createElement('div');
-            logoutItem.className = 'nav-item';
-            logoutItem.innerHTML = `
-                <a href="#" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a>
-            `;
-            nav.appendChild(logoutItem);
-            
-            document.getElementById('logoutBtn').addEventListener('click', (e) => {
-                e.preventDefault();
-                auth.logout();
-            });
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.checked = document.body.classList.contains('dark-mode');
+        themeToggle.addEventListener('change', () => {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
         });
-
-        // Load and update financial data
-        async function loadFinancialData() {
-            try {
-                console.log('Loading dashboard data...');
-                const response = await auth.fetchWithAuth(`${window.config.apiUrl}/api/finances`);
-                
-                if (!response.ok) {
-                    throw new Error(`Failed to load financial data: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log('Financial data loaded:', data);
-
-                // Update income display
-                const biweeklyIncome = document.getElementById('biweeklyIncome');
-                const monthlyIncome = document.getElementById('monthlyIncome');
-                if (biweeklyIncome) biweeklyIncome.textContent = formatCurrency(data.income?.biweekly || 0);
-                if (monthlyIncome) monthlyIncome.textContent = formatCurrency(data.income?.monthly || 0);
-
-                // Update bills table
-                const billsTableBody = document.getElementById('billsTableBody');
-                if (billsTableBody) {
-                    billsTableBody.innerHTML = (data.bills || []).map(bill => `
-                        <tr>
-                            <td>${bill.name}</td>
-                            <td>${formatCurrency(bill.amount)}</td>
-                            <td>${bill.category}</td>
-                            <td>
-                                <button class="action-button" onclick="editBill('${bill.name}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="action-button" onclick="deleteBill('${bill.name}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
-                }
-
-                // Update total bills and progress
-                const totalBills = (data.bills || []).reduce((sum, bill) => sum + Number(bill.amount), 0);
-                const totalBillsElement = document.getElementById('totalBills');
-                if (totalBillsElement) {
-                    totalBillsElement.textContent = formatCurrency(totalBills);
-                }
-
-                // Calculate and update progress bar
-                const biweeklyIncomeValue = Number(data.income?.biweekly || 0);
-                const billsPercentage = biweeklyIncomeValue ? (totalBills / biweeklyIncomeValue) * 100 : 0;
-                
-                const progressBar = document.querySelector('.progress');
-                if (progressBar) {
-                    progressBar.style.width = `${Math.min(billsPercentage, 100)}%`;
-                }
-                
-                const progressText = document.querySelector('.progress-text');
-                if (progressText) {
-                    progressText.textContent = `${billsPercentage.toFixed(1)}% of Biweekly Income`;
-                }
-
-            } catch (error) {
-                console.error('Error loading dashboard data:', error);
-                const errorElement = document.getElementById('dashboardError');
-                if (errorElement) {
-                    errorElement.textContent = 'Failed to load financial data. Please refresh the page.';
-                    errorElement.style.display = 'block';
-                }
-            }
-        }
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(amount);
-        }
     </script>
-    <script src="js/app.js"></script>
 </body>
 </html>
