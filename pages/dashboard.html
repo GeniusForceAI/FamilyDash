@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FamilyDash - Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dark-mode">
+    <!-- Navigation -->
+    <nav class="side-nav">
+        <div class="nav-header">
+            <h1>FamilyDash</h1>
+            <button id="menuToggle" class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <ul class="nav-items">
+            <li class="nav-item active">
+                <a href="dashboard.html">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="bills.html">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Bills</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="expenses.html">
+                    <i class="fas fa-wallet"></i>
+                    <span>Expenses</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="income.html">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Income</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="settings.html">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+        <div class="nav-footer">
+            <button id="logoutBtn" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+            <div class="theme-toggle">
+                <input type="checkbox" id="themeToggle" checked>
+                <label for="themeToggle">Dark Mode</label>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="content-header">
+            <h2>Dashboard</h2>
+            <div class="header-actions">
+                <span class="user-greeting">Welcome back, <span id="userName">User</span>!</span>
+            </div>
+        </header>
+
+        <!-- Statistics Cards -->
+        <section class="stats-grid">
+            <div class="stat-card income">
+                <div class="stat-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Monthly Income</h3>
+                    <p id="monthlyIncome">$0.00</p>
+                </div>
+            </div>
+            <div class="stat-card bills">
+                <div class="stat-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Monthly Bills</h3>
+                    <p id="monthlyBills">$0.00</p>
+                </div>
+            </div>
+            <div class="stat-card expenses">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Monthly Expenses</h3>
+                    <p id="monthlyExpenses">$0.00</p>
+                </div>
+            </div>
+            <div class="stat-card savings">
+                <div class="stat-icon">
+                    <i class="fas fa-piggy-bank"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Monthly Savings</h3>
+                    <p id="monthlySavings">$0.00</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Grid -->
+        <section class="charts-grid">
+            <div class="chart-card large">
+                <h3>Cash Flow Overview</h3>
+                <div class="chart-container">
+                    <canvas id="cashFlowChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Expense Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="expenseDistributionChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Savings Progress</h3>
+                <div class="chart-container">
+                    <canvas id="savingsProgressChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Bills vs Income</h3>
+                <div class="chart-container">
+                    <canvas id="billsVsIncomeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Transactions -->
+        <section class="transactions-section">
+            <h3>Recent Transactions</h3>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentTransactionsTable">
+                        <!-- Transactions will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script type="module">
+        import { DashboardManager } from '../js/dashboard.js';
+        const dashboardManager = new DashboardManager();
+        dashboardManager.initialize();
+    </script>
+</body>
+</html>
