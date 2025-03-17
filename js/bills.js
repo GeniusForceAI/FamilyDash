@@ -459,25 +459,29 @@ export class BillsManager {
 
     renderAccountsTable() {
         const tbody = document.getElementById('accountsTableBody');
-        if (!tbody) return;
+        if (!tbody || !this.accountsData) return;
 
-        if (!this.accountsData?.length) {
+        if (!this.accountsData.length) {
             tbody.innerHTML = '<tr><td colspan="4" class="no-data">No accounts found</td></tr>';
             return;
         }
 
         tbody.innerHTML = this.accountsData.map(account => `
             <tr>
-                <td>${account.name}</td>
-                <td>${this.formatCurrency(account.balance)}</td>
-                <td>${this.capitalizeFirst(account.type)}</td>
-                <td>
-                    <button class="action-button" onclick="billsManager.editAccount('${account.id}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-button" onclick="billsManager.deleteAccount('${account.id}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                <td data-label="Name">${account.name}</td>
+                <td data-label="Balance">${this.formatCurrency(account.balance)}</td>
+                <td data-label="Type">${account.type}</td>
+                <td data-label="Actions">
+                    <div class="action-buttons">
+                        <button class="btn" onclick="billsManager.editAccount('${account.id}')">
+                            <i class="fas fa-edit"></i>
+                            <span class="hide-mobile">Edit</span>
+                        </button>
+                        <button class="btn" onclick="billsManager.deleteAccount('${account.id}')">
+                            <i class="fas fa-trash"></i>
+                            <span class="hide-mobile">Delete</span>
+                        </button>
+                    </div>
                 </td>
             </tr>
         `).join('');
@@ -485,9 +489,9 @@ export class BillsManager {
 
     renderSubscriptionsTable() {
         const tbody = document.getElementById('subscriptionsTableBody');
-        if (!tbody) return;
+        if (!tbody || !this.billsData) return;
 
-        const subscriptions = this.billsData?.filter(bill => bill.is_subscription) || [];
+        const subscriptions = this.billsData.filter(bill => bill.is_subscription);
         
         if (!subscriptions.length) {
             tbody.innerHTML = '<tr><td colspan="5" class="no-data">No subscriptions found</td></tr>';
@@ -496,17 +500,21 @@ export class BillsManager {
 
         tbody.innerHTML = subscriptions.map(subscription => `
             <tr>
-                <td>${subscription.name}</td>
-                <td>${this.formatCurrency(subscription.amount)}</td>
-                <td>${subscription.billing_cycle}</td>
-                <td>${subscription.payment_account || 'Not assigned'}</td>
-                <td>
-                    <button class="action-button" onclick="billsManager.editBill('${subscription.id}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-button" onclick="billsManager.deleteBill('${subscription.id}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                <td data-label="Name">${subscription.name}</td>
+                <td data-label="Amount">${this.formatCurrency(subscription.amount)}</td>
+                <td data-label="Billing Cycle">${subscription.billing_cycle}</td>
+                <td data-label="Payment Account">${this.getAccountName(subscription.account_id)}</td>
+                <td data-label="Actions">
+                    <div class="action-buttons">
+                        <button class="btn" onclick="billsManager.editSubscription('${subscription.id}')">
+                            <i class="fas fa-edit"></i>
+                            <span class="hide-mobile">Edit</span>
+                        </button>
+                        <button class="btn" onclick="billsManager.deleteSubscription('${subscription.id}')">
+                            <i class="fas fa-trash"></i>
+                            <span class="hide-mobile">Delete</span>
+                        </button>
+                    </div>
                 </td>
             </tr>
         `).join('');
@@ -514,9 +522,9 @@ export class BillsManager {
 
     renderBillsTable() {
         const tbody = document.getElementById('billsTableBody');
-        if (!tbody) return;
+        if (!tbody || !this.billsData) return;
 
-        const bills = this.billsData?.filter(bill => !bill.is_subscription) || [];
+        const bills = this.billsData.filter(bill => !bill.is_subscription);
         
         if (!bills.length) {
             tbody.innerHTML = '<tr><td colspan="5" class="no-data">No bills found</td></tr>';
@@ -525,17 +533,25 @@ export class BillsManager {
 
         tbody.innerHTML = bills.map(bill => `
             <tr class="${this.getBillStatusClass(bill)}">
-                <td>${bill.name}</td>
-                <td>${this.formatCurrency(bill.amount)}</td>
-                <td>${new Date(bill.due_date).toLocaleDateString()}</td>
-                <td>${bill.payment_account || 'Not assigned'}</td>
-                <td>
-                    <button class="action-button" onclick="billsManager.editBill('${bill.id}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-button" onclick="billsManager.deleteBill('${bill.id}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                <td data-label="Name">${bill.name}</td>
+                <td data-label="Amount">${this.formatCurrency(bill.amount)}</td>
+                <td data-label="Due Date">${new Date(bill.due_date).toLocaleDateString()}</td>
+                <td data-label="Status">
+                    <span class="status-badge ${this.getBillStatusClass(bill)}">
+                        ${this.getBillStatus(bill)}
+                    </span>
+                </td>
+                <td data-label="Actions">
+                    <div class="action-buttons">
+                        <button class="btn" onclick="billsManager.markBillAsPaid('${bill.id}')">
+                            <i class="fas fa-check"></i>
+                            <span class="hide-mobile">Mark Paid</span>
+                        </button>
+                        <button class="btn" onclick="billsManager.editBill('${bill.id}')">
+                            <i class="fas fa-edit"></i>
+                            <span class="hide-mobile">Edit</span>
+                        </button>
+                    </div>
                 </td>
             </tr>
         `).join('');
@@ -548,6 +564,15 @@ export class BillsManager {
         if (dueDate < now) return 'overdue';
         if (dueDate - now <= 7 * 24 * 60 * 60 * 1000) return 'due-soon';
         return '';
+    }
+
+    getBillStatus(bill) {
+        const dueDate = new Date(bill.due_date);
+        const now = new Date();
+        
+        if (dueDate < now) return 'Overdue';
+        if (dueDate - now <= 7 * 24 * 60 * 60 * 1000) return 'Due Soon';
+        return 'Upcoming';
     }
 
     handleThemeChange() {
@@ -602,6 +627,23 @@ export class BillsManager {
 
     async deleteAccount(id) {
         // Implementation for deleting accounts
+    }
+
+    async editSubscription(id) {
+        // Implementation for editing subscriptions
+    }
+
+    async deleteSubscription(id) {
+        // Implementation for deleting subscriptions
+    }
+
+    async markBillAsPaid(id) {
+        // Implementation for marking bill as paid
+    }
+
+    getAccountName(id) {
+        const account = this.accountsData.find(account => account.id === id);
+        return account ? account.name : 'Not assigned';
     }
 }
 

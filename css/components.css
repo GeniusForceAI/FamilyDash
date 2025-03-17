@@ -1,3 +1,204 @@
+/* Mobile-first responsive styles */
+.dashboard-grid {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        padding: 2rem;
+    }
+}
+
+/* Stat cards for mobile */
+.stat-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+}
+
+.stat-card .stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+}
+
+.stat-card .stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.stat-card .stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Table responsiveness */
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+}
+
+.table-section {
+    margin: 1rem;
+    border-radius: 12px;
+}
+
+@media (max-width: 767px) {
+    .table-section table {
+        display: block;
+        width: 100%;
+    }
+
+    .table-section thead {
+        display: none; /* Hide headers on mobile */
+    }
+
+    .table-section tbody tr {
+        display: block;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .table-section td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border: none;
+    }
+
+    .table-section td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+    /* Add spacing between rows */
+    .table-section tr + tr {
+        margin-top: 0.5rem;
+    }
+}
+
+/* Chart responsiveness */
+.chart-card {
+    min-height: auto;
+    margin: 1rem;
+}
+
+.chart-container {
+    min-height: 200px;
+}
+
+@media (min-width: 768px) {
+    .chart-container {
+        min-height: 300px;
+    }
+}
+
+/* Status badges for mobile */
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+/* Form controls for mobile */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-left: 2.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.input-group i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+/* Action buttons for mobile */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+/* Modal adjustments for mobile */
+@media (max-width: 767px) {
+    .modal-content {
+        margin: 1rem;
+        max-height: calc(100vh - 2rem);
+        border-radius: 12px;
+    }
+
+    .modal-header {
+        padding: 1rem;
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+
+    .modal-footer {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 :root {
     /* Light mode variables */
     --background: #f5f6fa;
@@ -816,4 +1017,132 @@ select {
     border-radius: 12px;
     box-shadow: var(--card-shadow);
     border: 1px solid var(--border-color);
+}
+
+/* Mobile-specific styles */
+@media (max-width: 767px) {
+    .hide-mobile {
+        display: none;
+    }
+
+    .section-header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .section-header h2 {
+        margin: 0;
+    }
+
+    .action-buttons {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .action-buttons .btn {
+        padding: 0.5rem;
+        min-width: 40px;
+        justify-content: center;
+    }
+
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+
+    .analytics-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .chart-card {
+        margin: 0;
+        padding: 1rem;
+    }
+
+    .chart-container {
+        padding: 0.5rem;
+        margin: 0 -0.5rem;
+    }
+
+    /* Improve table readability on mobile */
+    .table-section td {
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+
+    .table-section td[data-label]::before {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        margin-bottom: 0.25rem;
+    }
+
+    /* Status badges on mobile */
+    .status-badge {
+        width: fit-content;
+        margin-left: auto;
+    }
+
+    /* Navigation adjustments for mobile */
+    .nav-brand {
+        font-size: 1.25rem;
+    }
+
+    .nav-toggle {
+        display: block;
+    }
+
+    .nav-menu {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: var(--card-bg);
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+        transform: translateY(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .nav-open .nav-menu {
+        transform: translateY(0);
+    }
+
+    /* Form improvements for mobile */
+    .form-group label {
+        font-size: 0.875rem;
+    }
+
+    .input-group input,
+    .input-group select {
+        font-size: 1rem;
+        height: 48px; /* Larger touch target */
+    }
+
+    /* Better spacing for mobile modals */
+    .modal-content {
+        padding: 1rem;
+    }
+
+    .modal-header {
+        margin: -1rem -1rem 1rem -1rem;
+        padding: 1rem;
+    }
+
+    .modal-footer {
+        margin: 1rem -1rem -1rem -1rem;
+        padding: 1rem;
+    }
+}
+
+/* Tablet and small desktop adjustments */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .analytics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .chart-card {
+        margin: 0.5rem;
+    }
 }
