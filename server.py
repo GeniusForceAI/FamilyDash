@@ -21,7 +21,7 @@ from app.auth.auth_utils import (
     get_current_active_admin,
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
-from routers import bills
+from routers import bills, investors
 
 # Configure logging
 logging.basicConfig(
@@ -67,6 +67,7 @@ user_dao = UserDAO()
 
 # Include routers
 app.include_router(bills.router)
+app.include_router(investors.router)
 
 @app.on_event("startup")
 async def startup_event():
