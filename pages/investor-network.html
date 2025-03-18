@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investor Network - Baker Family Finances</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/investor-network.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="../js/config.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body class="dark-mode">
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>Baker Finances</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="bills.html"><i class="fas fa-file-invoice-dollar"></i>Bills</a></li>
+                <li><a href="expenses.html"><i class="fas fa-wallet"></i>Expenses</a></li>
+                <li class="active"><a href="investor-network.html"><i class="fas fa-handshake"></i>Investor Network</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i>Settings</a></li>
+            </ul>
+            <div class="theme-toggle">
+                <i class="fas fa-moon"></i>
+                <span>Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="header">
+                <h1>Investor Network</h1>
+                <div class="header-controls">
+                    <span class="user-greeting">Welcome back, <span id="userName">User</span>!</span>
+                </div>
+            </header>
+
+            <div class="mode-toggle">
+                <button id="viewMode" class="active">View Network</button>
+                <button id="manageMode">Manage Leads</button>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-card">
+                    <i class="fas fa-user-tie"></i>
+                    <h3 id="totalContacts">-</h3>
+                    <p>Total Contacts</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-building"></i>
+                    <h3 id="totalCompanies">-</h3>
+                    <p>Total Companies</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3 id="upcomingEvents">-</h3>
+                    <p>Upcoming Events</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-handshake"></i>
+                    <h3 id="fundedCompanies">-</h3>
+                    <p>Funded Companies</p>
+                </div>
+            </div>
+
+            <div id="networkView" class="network-view active">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Investor Network</h2>
+                    </div>
+                    <div class="network-controls">
+                        <div class="control-group">
+                            <div class="search-box">
+                                <input type="text" id="networkSearch" class="form-control" placeholder="Search nodes...">
+                                <div id="networkSearchResults" class="search-results"></div>
+                            </div>
+                            <button id="centerNetwork" class="btn btn-primary btn-sm">
+                                <i class="fas fa-crosshairs"></i> Center
+                            </button>
+                        </div>
+                        <div class="control-group">
+                            <label>Force Strength: <span id="strengthValue">400</span></label>
+                            <input type="range" id="forceStrength" min="50" max="800" value="400" class="slider">
+                        </div>
+                        <div class="control-group">
+                            <label>Link Distance: <span id="distanceValue">100</span></label>
+                            <input type="range" id="linkDistance" min="50" max="300" value="100" class="slider">
+                        </div>
+                    </div>
+                    <div class="network-container" id="networkContainer"></div>
+                    <div id="nodeDetails" class="node-details">
+                        <div id="nodeContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="managementView" class="management-view">
+                <!-- Investor Network Controls -->
+                <div class="card investor-controls">
+                    <div class="card-header">
+                        <h2>Manage Leads</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="control-row">
+                            <div class="form-group">
+                                <label for="leadTypeSelect">Lead Type</label>
+                                <select id="leadTypeSelect" class="form-control">
+                                    <option value="">Select Lead Type</option>
+                                    <option value="person">Person</option>
+                                    <option value="company">Company</option>
+                                    <option value="event">Event</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="actionSelect">Action</label>
+                                <select id="actionSelect" class="form-control">
+                                    <option value="">Select Action</option>
+                                    <option value="create">Create New</option>
+                                    <option value="update">Update Existing</option>
+                                    <option value="view">View Details</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button id="refreshLeads" class="btn btn-secondary form-control">
+                                    <i class="fas fa-sync-alt"></i> Refresh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Form Container -->
+                <div id="formContainer" class="dynamic-form-container">
+                    <!-- Form will be inserted here by JS -->
+                </div>
+
+                <!-- Leads Overview -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card leads-overview">
+                            <div class="card-header">
+                                <h3>People</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="peopleList" class="leads-list">
+                                    <div class="loader">Loading...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card leads-overview">
+                            <div class="card-header">
+                                <h3>Companies</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="companiesList" class="leads-list">
+                                    <div class="loader">Loading...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card leads-overview">
+                            <div class="card-header">
+                                <h3>Events</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="eventsList" class="leads-list">
+                                    <div class="loader">Loading...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { auth } from '../js/auth.js';
+        import { theme } from '../js/theme.js';
+        
+        // Check authentication
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuthenticated = await auth.checkAuth();
+            if (!isAuthenticated) {
+                window.location.href = '../pages/login.html';
+            }
+            
+            // Set user name
+            const user = auth.getCurrentUser();
+            if (user) {
+                document.getElementById('userName').textContent = user.name || user.email;
+            }
+            
+            // Initialize theme
+            theme.init();
+            
+            // Initialize view/manage mode toggle
+            const viewMode = document.getElementById('viewMode');
+            const manageMode = document.getElementById('manageMode');
+            const networkView = document.getElementById('networkView');
+            const managementView = document.getElementById('managementView');
+            
+            viewMode.addEventListener('click', () => {
+                viewMode.classList.add('active');
+                manageMode.classList.remove('active');
+                networkView.classList.add('active');
+                managementView.classList.remove('active');
+                initializeNetwork(); // Refresh network view
+            });
+            
+            manageMode.addEventListener('click', () => {
+                manageMode.classList.add('active');
+                viewMode.classList.remove('active');
+                networkView.classList.remove('active');
+                managementView.classList.add('active');
+                loadDashboardData(); // Refresh management view
+            });
+            
+            // Initialize tabs
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabName = btn.getAttribute('data-tab');
+                    
+                    // Update active tab button
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Update active tab pane
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('active');
+                    });
+                    document.getElementById(`${tabName}-tab`).classList.add('active');
+                });
+            });
+            
+            // Load initial data
+            loadDashboardData();
+            initializeNetwork();
+        });
+        
+        // Network visualization
+        function initializeNetwork() {
+            const container = document.getElementById('networkContainer');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            
+            // Clear previous network
+            container.innerHTML = '';
+            
+            const svg = d3.select('#networkContainer')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+            
+            // Load network data
+            loadNetworkData().then(data => {
+                const simulation = d3.forceSimulation(data.nodes)
+                    .force('link', d3.forceLink(data.links).id(d => d.id))
+                    .force('charge', d3.forceManyBody().strength(-400))
+                    .force('center', d3.forceCenter(width / 2, height / 2));
+                
+                const link = svg.append('g')
+                    .selectAll('line')
+                    .data(data.links)
+                    .join('line')
+                    .attr('stroke', '#999')
+                    .attr('stroke-opacity', 0.6);
+                
+                const node = svg.append('g')
+                    .selectAll('g')
+                    .data(data.nodes)
+                    .join('g')
+                    .call(drag(simulation));
+                
+                node.append('circle')
+                    .attr('r', 8)
+                    .attr('fill', d => getNodeColor(d.type));
+                
+                node.append('title')
+                    .text(d => d.name);
+                
+                node.on('click', showNodeDetails);
+                
+                simulation.on('tick', () => {
+                    link
+                        .attr('x1', d => d.source.x)
+                        .attr('y1', d => d.source.y)
+                        .attr('x2', d => d.target.x)
+                        .attr('y2', d => d.target.y);
+                    
+                    node
+                        .attr('transform', d => `translate(${d.x},${d.y})`);
+                });
+            });
+        }
+        
+        function getNodeColor(type) {
+            const colors = {
+                person: '#4CAF50',
+                company: '#2196F3',
+                event: '#FFC107'
+            };
+            return colors[type] || '#9C27B0';
+        }
+        
+        function showNodeDetails(event, d) {
+            const details = document.getElementById('nodeDetails');
+            const content = document.getElementById('nodeContent');
+            
+            content.innerHTML = `
+                <h4>${d.name}</h4>
+                <p><strong>Type:</strong> ${d.type}</p>
+                ${d.type === 'person' ? `
+                    <p><strong>Position:</strong> ${d.position || 'N/A'}</p>
+                    <p><strong>Company:</strong> ${d.company || 'N/A'}</p>
+                ` : d.type === 'company' ? `
+                    <p><strong>Industry:</strong> ${d.industry || 'N/A'}</p>
+                    <p><strong>Website:</strong> ${d.website ? `<a href="${d.website}" target="_blank">${d.website}</a>` : 'N/A'}</p>
+                ` : `
+                    <p><strong>Date:</strong> ${new Date(d.date).toLocaleDateString()}</p>
+                    <p><strong>Location:</strong> ${d.location || 'N/A'}</p>
+                `}
+            `;
+            
+            details.classList.add('active');
+        }
+        
+        function drag(simulation) {
+            function dragstarted(event) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                event.subject.fx = event.subject.x;
+                event.subject.fy = event.subject.y;
+            }
+            
+            function dragged(event) {
+                event.subject.fx = event.x;
+                event.subject.fy = event.y;
+            }
+            
+            function dragended(event) {
+                if (!event.active) simulation.alphaTarget(0);
+                event.subject.fx = null;
+                event.subject.fy = null;
+            }
+            
+            return d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended);
+        }
+        
+        async function loadNetworkData() {
+            const token = localStorage.getItem('token');
+            const headers = { 'Authorization': `Bearer ${token}` };
+            
+            try {
+                const [contacts, companies, events] = await Promise.all([
+                    fetch('/api/investors/contacts', { headers }).then(res => res.json()),
+                    fetch('/api/investors/companies', { headers }).then(res => res.json()),
+                    fetch('/api/investors/events', { headers }).then(res => res.json())
+                ]);
+                
+                const nodes = [
+                    ...contacts.map(c => ({ ...c, id: `person-${c.id}`, type: 'person' })),
+                    ...companies.map(c => ({ ...c, id: `company-${c.id}`, type: 'company' })),
+                    ...events.map(e => ({ ...e, id: `event-${e.id}`, type: 'event' }))
+                ];
+                
+                const links = [];
+                
+                // Create links between contacts and their companies
+                contacts.forEach(contact => {
+                    if (contact.company) {
+                        links.push({
+                            source: `person-${contact.id}`,
+                            target: `company-${contact.company}`,
+                            type: 'works_at'
+                        });
+                    }
+                });
+                
+                // Create links between companies and events
+                events.forEach(event => {
+                    if (event.related_companies) {
+                        event.related_companies.forEach(companyId => {
+                            links.push({
+                                source: `event-${event.id}`,
+                                target: `company-${companyId}`,
+                                type: 'involves'
+                            });
+                        });
+                    }
+                });
+                
+                return { nodes, links };
+            } catch (error) {
+                console.error('Error loading network data:', error);
+                return { nodes: [], links: [] };
+            }
+        }
+        
+        async function loadDashboardData() {
+            try {
+                const token = localStorage.getItem('token');
+                const headers = { 'Authorization': `Bearer ${token}` };
+                
+                // Fetch contacts count
+                fetch('/api/investors/contacts', { headers })
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('totalContacts').textContent = data.length;
+                        populateLeadsList('peopleList', data);
+                    });
+                
+                // Fetch companies count
+                fetch('/api/investors/companies', { headers })
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('totalCompanies').textContent = data.length;
+                        populateLeadsList('companiesList', data);
+                    });
+                
+                // Fetch events count
+                fetch('/api/investors/events', { headers })
+                    .then(res => res.json())
+                    .then(data => {
+                        const upcomingEvents = data.filter(event => {
+                            return new Date(event.date) >= new Date();
+                        });
+                        document.getElementById('upcomingEvents').textContent = upcomingEvents.length;
+                        populateLeadsList('eventsList', data);
+                    });
+                
+                // Fetch funded companies count
+                fetch('/api/investors/funded-companies', { headers })
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('fundedCompanies').textContent = data.length;
+                    });
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+        
+        function populateLeadsList(listId, items) {
+            const list = document.getElementById(listId);
+            list.innerHTML = '';
+            
+            if (items.length === 0) {
+                list.innerHTML = '<div class="empty-state">No items found</div>';
+                return;
+            }
+            
+            items.slice(0, 5).forEach(item => {
+                const listItem = document.createElement('div');
+                listItem.className = 'lead-item';
+                
+                const icon = document.createElement('div');
+                icon.className = 'lead-icon';
+                
+                if (listId === 'peopleList') {
+                    icon.innerHTML = '<i class="fas fa-user"></i>';
+                } else if (listId === 'companiesList') {
+                    icon.innerHTML = '<i class="fas fa-building"></i>';
+                } else {
+                    icon.innerHTML = '<i class="fas fa-calendar"></i>';
+                }
+                
+                const content = document.createElement('div');
+                content.className = 'lead-content';
+                
+                const title = document.createElement('h4');
+                title.textContent = item.name;
+                
+                const details = document.createElement('p');
+                if (listId === 'peopleList') {
+                    details.textContent = item.position || 'Contact';
+                } else if (listId === 'companiesList') {
+                    details.textContent = item.industry || 'Company';
+                } else {
+                    details.textContent = new Date(item.date).toLocaleDateString() || 'Event';
+                }
+                
+                content.appendChild(title);
+                content.appendChild(details);
+                
+                listItem.appendChild(icon);
+                listItem.appendChild(content);
+                
+                // Add view button
+                const viewBtn = document.createElement('button');
+                viewBtn.className = 'btn btn-sm btn-outline';
+                viewBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                viewBtn.addEventListener('click', () => viewLeadDetails(item));
+                listItem.appendChild(viewBtn);
+                
+                list.appendChild(listItem);
+            });
+        }
+        
+        function viewLeadDetails(item) {
+            // Set lead type and action
+            const leadTypeSelect = document.getElementById('leadTypeSelect');
+            const actionSelect = document.getElementById('actionSelect');
+            
+            if (item.hasOwnProperty('position')) {
+                leadTypeSelect.value = 'person';
+            } else if (item.hasOwnProperty('industry')) {
+                leadTypeSelect.value = 'company';
+            } else {
+                leadTypeSelect.value = 'event';
+            }
+            
+            actionSelect.value = 'view';
+            
+            // Trigger change events
+            leadTypeSelect.dispatchEvent(new Event('change'));
+            actionSelect.dispatchEvent(new Event('change'));
+            
+            // Scroll to form
+            document.querySelector('.investor-controls').scrollIntoView({
+                behavior: 'smooth'
+            });
+            
+            // Wait for form to be created
+            setTimeout(() => {
+                // Populate form with item data
+                const form = document.getElementById('leadForm');
+                if (!form) return;
+                
+                Object.keys(item).forEach(key => {
+                    const input = form.elements[key];
+                    if (input) {
+                        input.value = item[key];
+                    }
+                });
+            }, 500);
+        }
+        
+        // Refresh button
+        document.getElementById('refreshLeads').addEventListener('click', () => {
+            loadDashboardData();
+        });
+    </script>
+    
+    <!-- Load investor network functionality -->
+    <script src="../js/investor-network.js"></script>
+</body>
+</html>
