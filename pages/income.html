@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baker Family Finances - Income</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module">
+        import { auth } from '../js/auth.js';
+        import config from '../js/config.js';
+        window.auth = auth;
+        window.config = config;
+    </script>
+    <script src="../js/income.js" type="module"></script>
+</head>
+<body class="dark-mode">
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>Baker Finances</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="bills.html"><i class="fas fa-file-invoice-dollar"></i>Bills</a></li>
+                <li><a href="expenses.html"><i class="fas fa-wallet"></i>Expenses</a></li>
+                <li class="active"><a href="income.html"><i class="fas fa-money-bill-wave"></i>Income</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i>Settings</a></li>
+            </ul>
+            <div class="theme-toggle">
+                <i class="fas fa-moon"></i>
+                <span>Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="header">
+                <h1>Income Management</h1>
+                <div class="header-controls">
+                    <button class="btn btn-primary" id="addIncomeBtn">
+                        <i class="fas fa-plus"></i> Add Income Source
+                    </button>
+                </div>
+            </header>
+
+            <!-- Statistics Cards -->
+            <section class="stats-grid">
+                <div class="stat-card income">
+                    <div class="stat-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Total Monthly Income</h3>
+                        <p id="totalMonthlyIncome">$12,500.00</p>
+                    </div>
+                </div>
+                <div class="stat-card recurring">
+                    <div class="stat-icon">
+                        <i class="fas fa-sync"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Recurring Income</h3>
+                        <p id="recurringIncome">$10,000.00</p>
+                    </div>
+                </div>
+                <div class="stat-card variable">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Variable Income</h3>
+                        <p id="variableIncome">$2,500.00</p>
+                    </div>
+                </div>
+                <div class="stat-card ytd">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>YTD Income</h3>
+                        <p id="ytdIncome">$87,500.00</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Grid -->
+            <section class="charts-grid">
+                <div class="chart-card large">
+                    <h3>Income Trends</h3>
+                    <div class="chart-container">
+                        <canvas id="incomeTrendsChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Income Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="incomeDistributionChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Income vs Goal</h3>
+                    <div class="chart-container">
+                        <canvas id="incomeGoalChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Income Categories</h3>
+                    <div class="chart-container">
+                        <canvas id="incomeCategoriesChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Income Sources Table -->
+            <section class="table-section">
+                <h2>Income Sources</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Frequency</th>
+                                <th>Amount</th>
+                                <th>Last Received</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="incomeSourcesTable">
+                            <!-- Income sources will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add/Edit Income Modal -->
+    <div class="modal" id="incomeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Income Source</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="incomeForm">
+                    <div class="form-group">
+                        <label for="sourceName">Source Name</label>
+                        <input type="text" id="sourceName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" required>
+                            <option value="salary">Salary</option>
+                            <option value="freelance">Freelance</option>
+                            <option value="investments">Investments</option>
+                            <option value="rental">Rental Income</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="incomeType">Type</label>
+                        <select id="incomeType" required>
+                            <option value="recurring">Recurring</option>
+                            <option value="variable">Variable</option>
+                            <option value="one-time">One-time</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="frequency">Frequency</label>
+                        <select id="frequency" required>
+                            <option value="weekly">Weekly</option>
+                            <option value="biweekly">Bi-weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="annually">Annually</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="number" id="amount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastReceived">Last Received</label>
+                        <input type="date" id="lastReceived" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveIncomeBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { IncomeManager } from '../js/income.js';
+        const income = new IncomeManager();
+        income.initialize();
+    </script>
+</body>
+</html>
