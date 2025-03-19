@@ -2,9 +2,35 @@
 class InvestorNetwork {
     constructor() {
         this.token = localStorage.getItem('token');
-        this.baseUrl = '/api/investors';
+        this.baseUrl = `${window.config.apiUrl}/api/investors`;
         this.mockData = this.generateMockData();
         this.setupEventListeners();
+        this.loadData();
+    }
+
+    generateMockData() {
+        // Keep mock data for contacts and events until we implement those features
+        const contacts = [
+            { id: 'person1', name: 'John Smith', email: 'john@acme.com', position: 'CEO', company: 'comp1', linkedin: 'https://linkedin.com/in/johnsmith' },
+            { id: 'person2', name: 'Emily Davis', email: 'emily@techventures.com', position: 'Partner', company: 'comp2', linkedin: 'https://linkedin.com/in/emilydavis' },
+            { id: 'person3', name: 'Michael Johnson', email: 'michael@nextgenai.com', position: 'CTO', company: 'comp3', linkedin: 'https://linkedin.com/in/michaeljohnson' },
+            { id: 'person4', name: 'Sarah Williams', email: 'sarah@quantumsys.io', position: 'Research Director', company: 'comp4', linkedin: 'https://linkedin.com/in/sarahwilliams' },
+            { id: 'person5', name: 'Alex Chen', email: 'alex@acme.com', position: 'CFO', company: 'comp1', linkedin: 'https://linkedin.com/in/alexchen' }
+        ];
+        
+        const events = [
+            { id: 'event1', name: 'Annual Tech Conference', date: '2025-05-15', time: '09:00', location: 'San Francisco', type: 'Conference', description: 'Annual technology conference' },
+            { id: 'event2', name: 'Investment Pitch Day', date: '2025-04-10', time: '14:00', location: 'New York', type: 'Pitch', description: 'Startup pitch event' },
+            { id: 'event3', name: 'Biotech Workshop', date: '2025-06-20', time: '10:00', location: 'Boston', type: 'Workshop', description: 'Workshop on biotech innovations' }
+        ];
+        
+        const fundedCompanies = [
+            { id: 'funded1', name: 'AI Robotics Inc', investment_amount: 5000000, investment_date: '2024-12-15', status: 'Active' },
+            { id: 'funded2', name: 'CloudSolutions', investment_amount: 3500000, investment_date: '2024-10-20', status: 'Active' },
+            { id: 'funded3', name: 'Mobile Health', investment_amount: 2000000, investment_date: '2024-08-05', status: 'Active' }
+        ];
+        
+        return { contacts, events, fundedCompanies };
     }
 
     async setupEventListeners() {
@@ -53,75 +79,126 @@ class InvestorNetwork {
             actionSelect.addEventListener('change', () => this.updateActionForm());
         }
 
-        // Setup form submissions
-        const leadForm = document.getElementById('leadForm');
-        if (leadForm) {
-            leadForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
-        }
-
-        // Initialize network view with mock data
-        this.initializeNetwork();
-        
-        // Load mock data for leads
-        this.loadMockData();
-        
         // Setup refresh button
         const refreshBtn = document.getElementById('refreshLeads');
         if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => this.loadMockData());
+            refreshBtn.addEventListener('click', () => this.loadData());
+        }
+
+        // Initialize network view
+        this.initializeNetwork();
+    }
+
+    async loadData() {
+        try {
+            // Fetch companies from API
+            const companies = await this.fetchCompanies();
+            
+            // Use mock data for other entities until we implement them
+            const contacts = this.mockData.contacts;
+            const events = this.mockData.events;
+            const fundedCompanies = this.mockData.fundedCompanies;
+
+            // Update dashboard stats
+            document.getElementById('totalContacts').textContent = contacts.length;
+            document.getElementById('totalCompanies').textContent = companies.length;
+            
+            const upcomingEvents = events.filter(event => {
+                return new Date(event.date) >= new Date();
+            });
+            document.getElementById('upcomingEvents').textContent = upcomingEvents.length;
+            document.getElementById('fundedCompanies').textContent = fundedCompanies.length;
+            
+            // Populate leads lists
+            this.populateLeadsList('peopleList', contacts);
+            this.populateLeadsList('companiesList', companies);
+            this.populateLeadsList('eventsList', events);
+
+            // Store companies for network visualization
+            this.companies = companies;
+
+        } catch (error) {
+            console.error('Error loading data:', error);
+            // Show error message to user
+            alert('Error loading data. Please try again.');
         }
     }
 
-    generateMockData() {
-        // Create mock data that matches our backend models
-        const companies = [
-            { id: 'comp1', name: 'Acme Corp', industry: 'Technology', website: 'https://acme.com', description: 'Leading tech company' },
-            { id: 'comp2', name: 'TechVentures', industry: 'VC', website: 'https://techventures.com', description: 'Venture capital firm' },
-            { id: 'comp3', name: 'NextGen AI', industry: 'Artificial Intelligence', website: 'https://nextgenai.com', description: 'AI solutions provider' },
-            { id: 'comp4', name: 'Quantum Systems', industry: 'Quantum Computing', website: 'https://quantumsys.io', description: 'Quantum computing research' },
-            { id: 'comp5', name: 'BioTech Solutions', industry: 'Biotechnology', website: 'https://biotechsol.com', description: 'Innovative biotech company' }
-        ];
-        
-        const contacts = [
-            { id: 'person1', name: 'John Smith', email: 'john@acme.com', position: 'CEO', company: 'comp1', linkedin: 'https://linkedin.com/in/johnsmith' },
-            { id: 'person2', name: 'Emily Davis', email: 'emily@techventures.com', position: 'Partner', company: 'comp2', linkedin: 'https://linkedin.com/in/emilydavis' },
-            { id: 'person3', name: 'Michael Johnson', email: 'michael@nextgenai.com', position: 'CTO', company: 'comp3', linkedin: 'https://linkedin.com/in/michaeljohnson' },
-            { id: 'person4', name: 'Sarah Williams', email: 'sarah@quantumsys.io', position: 'Research Director', company: 'comp4', linkedin: 'https://linkedin.com/in/sarahwilliams' },
-            { id: 'person5', name: 'Alex Chen', email: 'alex@acme.com', position: 'CFO', company: 'comp1', linkedin: 'https://linkedin.com/in/alexchen' },
-            { id: 'person6', name: 'Lisa Brown', email: 'lisa@biotechsol.com', position: 'CEO', company: 'comp5', linkedin: 'https://linkedin.com/in/lisabrown' }
-        ];
-        
-        const events = [
-            { id: 'event1', name: 'Annual Tech Conference', date: '2025-05-15', time: '09:00', location: 'San Francisco', type: 'Conference', description: 'Annual technology conference', related_companies: ['comp1', 'comp3'] },
-            { id: 'event2', name: 'Investment Pitch Day', date: '2025-04-10', time: '14:00', location: 'New York', type: 'Pitch', description: 'Startup pitch event', related_companies: ['comp2'] },
-            { id: 'event3', name: 'Biotech Workshop', date: '2025-06-20', time: '10:00', location: 'Boston', type: 'Workshop', description: 'Workshop on biotech innovations', related_companies: ['comp5'] },
-            { id: 'event4', name: 'Quantum Computing Summit', date: '2025-07-05', time: '09:30', location: 'Virtual', type: 'Conference', description: 'Latest in quantum computing', related_companies: ['comp4'] }
-        ];
-        
-        const fundedCompanies = [
-            { id: 'funded1', name: 'AI Robotics Inc', investment_amount: 5000000, investment_date: '2024-12-15', status: 'Active' },
-            { id: 'funded2', name: 'CloudSolutions', investment_amount: 3500000, investment_date: '2024-10-20', status: 'Active' },
-            { id: 'funded3', name: 'Mobile Health', investment_amount: 2000000, investment_date: '2024-08-05', status: 'Active' }
-        ];
-        
-        return { companies, contacts, events, fundedCompanies };
-    }
-    
-    async loadMockData() {
-        // Update dashboard stats with mock data
-        document.getElementById('totalContacts').textContent = this.mockData.contacts.length;
-        document.getElementById('totalCompanies').textContent = this.mockData.companies.length;
-        
-        const upcomingEvents = this.mockData.events.filter(event => {
-            return new Date(event.date) >= new Date();
+    async fetchCompanies() {
+        const response = await fetch(`${this.baseUrl}/companies`, {
+            headers: {
+                'Authorization': `Bearer ${this.token}`
+            }
         });
-        document.getElementById('upcomingEvents').textContent = upcomingEvents.length;
-        document.getElementById('fundedCompanies').textContent = this.mockData.fundedCompanies.length;
-        
-        // Populate leads lists
-        this.populateLeadsList('peopleList', this.mockData.contacts);
-        this.populateLeadsList('companiesList', this.mockData.companies);
-        this.populateLeadsList('eventsList', this.mockData.events);
+        if (!response.ok) throw new Error('Failed to fetch companies');
+        return await response.json();
+    }
+
+    async fetchContacts() {
+        const response = await fetch(`${this.baseUrl}/contacts`, {
+            headers: {
+                'Authorization': `Bearer ${this.token}`
+            }
+        });
+        if (!response.ok) throw new Error('Failed to fetch contacts');
+        return await response.json();
+    }
+
+    async fetchEvents() {
+        const response = await fetch(`${this.baseUrl}/events`, {
+            headers: {
+                'Authorization': `Bearer ${this.token}`
+            }
+        });
+        if (!response.ok) throw new Error('Failed to fetch events');
+        return await response.json();
+    }
+
+    async fetchFundedCompanies() {
+        const response = await fetch(`${this.baseUrl}/funded-companies`, {
+            headers: {
+                'Authorization': `Bearer ${this.token}`
+            }
+        });
+        if (!response.ok) throw new Error('Failed to fetch funded companies');
+        return await response.json();
+    }
+
+    async createCompany(companyData) {
+        const response = await fetch(`${this.baseUrl}/companies`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(companyData)
+        });
+        if (!response.ok) throw new Error('Failed to create company');
+        return await response.json();
+    }
+
+    async updateCompany(id, companyData) {
+        const response = await fetch(`${this.baseUrl}/companies/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(companyData)
+        });
+        if (!response.ok) throw new Error('Failed to update company');
+        return await response.json();
+    }
+
+    async deleteCompany(id) {
+        const response = await fetch(`${this.baseUrl}/companies/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${this.token}`
+            }
+        });
+        if (!response.ok) throw new Error('Failed to delete company');
+        return true;
     }
     
     populateLeadsList(listId, items) {
@@ -154,7 +231,7 @@ class InvestorNetwork {
             content.className = 'lead-content';
             
             const title = document.createElement('h4');
-            title.textContent = item.name;
+            title.textContent = listId === 'companiesList' ? item.company_name : item.name;
             
             const details = document.createElement('p');
             if (listId === 'peopleList') {
@@ -182,6 +259,59 @@ class InvestorNetwork {
         });
     }
 
+    async handleFormSubmit(event) {
+        event.preventDefault();
+        
+        const leadType = document.getElementById('leadTypeSelect').value;
+        const action = document.getElementById('actionSelect').value;
+        
+        // Get form data
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+        
+        try {
+            let result;
+            
+            if (leadType === 'company') {
+                if (action === 'create') {
+                    result = await this.createCompany(data);
+                } else if (action === 'update' && data.id) {
+                    result = await this.updateCompany(data.id, data);
+                }
+            }
+            // Add similar blocks for other lead types
+            
+            // Refresh the data
+            await this.loadData();
+            
+            // Clear the form
+            event.target.reset();
+            
+            // Show success message
+            alert('Operation completed successfully');
+            
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error performing operation. Please try again.');
+        }
+    }
+
+    getFieldsForLeadType(leadType) {
+        switch (leadType) {
+            case 'company':
+                return [
+                    { name: 'company_name', label: 'Company Name', type: 'text', required: true },
+                    { name: 'industry', label: 'Industry', type: 'text', required: true },
+                    { name: 'physical_address', label: 'Physical Address', type: 'text', required: true },
+                    { name: 'website', label: 'Website', type: 'url', required: true },
+                    { name: 'linkedin_page', label: 'LinkedIn Page', type: 'url', required: true }
+                ];
+            // Add cases for other lead types
+            default:
+                return [];
+        }
+    }
+
     async updateActionForm() {
         const leadType = document.getElementById('leadTypeSelect').value;
         const action = document.getElementById('actionSelect').value;
@@ -196,237 +326,50 @@ class InvestorNetwork {
         form.id = 'leadForm';
         form.classList.add('card', 'form-card');
 
-        // Common fields based on lead type
+        // Add form header
+        const header = document.createElement('div');
+        header.className = 'card-header';
+        header.innerHTML = `<h3>${action.charAt(0).toUpperCase() + action.slice(1)} ${leadType.charAt(0).toUpperCase() + leadType.slice(1)}</h3>`;
+        form.appendChild(header);
+
+        const body = document.createElement('div');
+        body.className = 'card-body';
+
+        // Get fields for the lead type
         const fields = this.getFieldsForLeadType(leadType);
         
         fields.forEach(field => {
-            const formGroup = this.createFormGroup(field);
-            form.appendChild(formGroup);
+            const formGroup = document.createElement('div');
+            formGroup.className = 'form-group';
+            
+            const label = document.createElement('label');
+            label.htmlFor = field.name;
+            label.textContent = field.label;
+            
+            const input = document.createElement('input');
+            input.type = field.type;
+            input.id = field.name;
+            input.name = field.name;
+            input.className = 'form-control';
+            input.required = field.required;
+            
+            formGroup.appendChild(label);
+            formGroup.appendChild(input);
+            body.appendChild(formGroup);
         });
 
         // Add submit button
         const submitBtn = document.createElement('button');
         submitBtn.type = 'submit';
         submitBtn.className = 'btn btn-primary';
-        submitBtn.textContent = `${action} ${leadType}`;
-        form.appendChild(submitBtn);
+        submitBtn.textContent = action.charAt(0).toUpperCase() + action.slice(1);
+        body.appendChild(submitBtn);
 
-        formContainer.appendChild(form);
-        
-        // If viewing or updating, load existing data
-        if (action === 'view' || action === 'update') {
-            const searchContainer = this.createSearchContainer(leadType);
-            formContainer.insertBefore(searchContainer, form);
-        }
-        
-        // Add event listener to form
+        form.appendChild(body);
         form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+        formContainer.appendChild(form);
     }
 
-    getFieldsForLeadType(leadType) {
-        const commonFields = [
-            { name: 'name', label: 'Name', type: 'text', required: true },
-            { name: 'description', label: 'Description', type: 'textarea' }
-        ];
-
-        const fields = {
-            person: [
-                ...commonFields,
-                { name: 'email', label: 'Email', type: 'email', required: true },
-                { name: 'position', label: 'Position', type: 'text' },
-                { name: 'linkedin', label: 'LinkedIn Profile', type: 'url' },
-                { name: 'company', label: 'Company', type: 'select', options: this.mockData.companies.map(c => ({ value: c.id, label: c.name })) }
-            ],
-            company: [
-                ...commonFields,
-                { name: 'industry', label: 'Industry', type: 'text', required: true },
-                { name: 'website', label: 'Website', type: 'url' },
-                { name: 'linkedin', label: 'LinkedIn Page', type: 'url' },
-                { name: 'address', label: 'Address', type: 'text' }
-            ],
-            event: [
-                ...commonFields,
-                { name: 'date', label: 'Date', type: 'date', required: true },
-                { name: 'time', label: 'Time', type: 'time' },
-                { name: 'location', label: 'Location', type: 'text' },
-                { name: 'type', label: 'Event Type', type: 'select', options: [
-                    { value: 'meeting', label: 'Meeting' }, 
-                    { value: 'conference', label: 'Conference' }, 
-                    { value: 'workshop', label: 'Workshop' }, 
-                    { value: 'pitch', label: 'Pitch' }, 
-                    { value: 'other', label: 'Other' }
-                ]}
-            ]
-        };
-
-        return fields[leadType] || commonFields;
-    }
-
-    createFormGroup(field) {
-        const formGroup = document.createElement('div');
-        formGroup.className = 'form-group';
-
-        const label = document.createElement('label');
-        label.htmlFor = field.name;
-        label.textContent = field.label;
-        formGroup.appendChild(label);
-
-        let input;
-        if (field.type === 'textarea') {
-            input = document.createElement('textarea');
-        } else if (field.type === 'select') {
-            input = document.createElement('select');
-            
-            // Add empty option
-            const emptyOption = document.createElement('option');
-            emptyOption.value = '';
-            emptyOption.textContent = `Select ${field.label}`;
-            input.appendChild(emptyOption);
-            
-            // Add options from field config
-            if (field.options && Array.isArray(field.options)) {
-                field.options.forEach(option => {
-                    const opt = document.createElement('option');
-                    if (typeof option === 'object') {
-                        opt.value = option.value;
-                        opt.textContent = option.label;
-                    } else {
-                        opt.value = option.toLowerCase();
-                        opt.textContent = option;
-                    }
-                    input.appendChild(opt);
-                });
-            }
-        } else {
-            input = document.createElement('input');
-            input.type = field.type;
-        }
-
-        input.id = field.name;
-        input.name = field.name;
-        input.required = field.required || false;
-        input.className = 'form-control';
-        formGroup.appendChild(input);
-
-        return formGroup;
-    }
-
-    createSearchContainer(leadType) {
-        const container = document.createElement('div');
-        container.className = 'search-container card';
-
-        const searchInput = document.createElement('input');
-        searchInput.type = 'text';
-        searchInput.placeholder = `Search ${leadType}...`;
-        searchInput.className = 'form-control search-input';
-
-        const resultsList = document.createElement('div');
-        resultsList.className = 'search-results';
-
-        container.appendChild(searchInput);
-        container.appendChild(resultsList);
-
-        // Add search functionality
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            if (query.length < 2) {
-                resultsList.innerHTML = '';
-                return;
-            }
-
-            // Get mock data based on lead type
-            let items = [];
-            if (leadType === 'person') {
-                items = this.mockData.contacts;
-            } else if (leadType === 'company') {
-                items = this.mockData.companies;
-            } else if (leadType === 'event') {
-                items = this.mockData.events;
-            }
-            
-            // Filter items by name matching query
-            const filteredItems = items.filter(item => 
-                item.name.toLowerCase().includes(query)
-            );
-            
-            this.displaySearchResults(filteredItems, resultsList);
-        });
-
-        return container;
-    }
-
-    displaySearchResults(results, container) {
-        container.innerHTML = '';
-        results.forEach(result => {
-            const item = document.createElement('div');
-            item.className = 'search-result-item';
-            item.textContent = result.name;
-            item.addEventListener('click', () => this.loadLeadData(result));
-            container.appendChild(item);
-        });
-    }
-
-    loadLeadData(lead) {
-        const form = document.getElementById('leadForm');
-        if (!form) return;
-
-        // Populate form fields with lead data
-        Object.keys(lead).forEach(key => {
-            const input = form.elements[key];
-            if (input) {
-                input.value = lead[key];
-            }
-        });
-    }
-    
-    viewLeadDetails(item) {
-        // Set lead type and action
-        const leadTypeSelect = document.getElementById('leadTypeSelect');
-        const actionSelect = document.getElementById('actionSelect');
-        
-        if (item.hasOwnProperty('position')) {
-            leadTypeSelect.value = 'person';
-        } else if (item.hasOwnProperty('industry')) {
-            leadTypeSelect.value = 'company';
-        } else {
-            leadTypeSelect.value = 'event';
-        }
-        
-        actionSelect.value = 'view';
-        
-        // Switch to management view
-        const manageMode = document.getElementById('manageMode');
-        if (manageMode) {
-            manageMode.click();
-        }
-        
-        // Trigger change events to update form
-        leadTypeSelect.dispatchEvent(new Event('change'));
-        actionSelect.dispatchEvent(new Event('change'));
-        
-        // Wait for form to be created
-        setTimeout(() => {
-            // Populate form with item data
-            this.loadLeadData(item);
-        }, 300);
-    }
-
-    async handleFormSubmit(e) {
-        e.preventDefault();
-        const leadType = document.getElementById('leadTypeSelect').value;
-        const action = document.getElementById('actionSelect').value;
-        
-        const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData.entries());
-
-        // For demo purposes, show success message and reset form
-        alert(`${leadType} ${action}d successfully!`);
-        e.target.reset();
-        
-        // Refresh mock data (in a real app, this would save to backend)
-        this.loadMockData();
-    }
-    
     // Network visualization
     initializeNetwork() {
         const container = document.getElementById('networkContainer');
@@ -494,13 +437,13 @@ class InvestorNetwork {
         node.append('text')
             .attr('dx', 12)
             .attr('dy', '.35em')
-            .text(d => d.name)
+            .text(d => d.name || d.company_name)
             .style('font-size', '10px')
             .style('fill', '#fff');
         
         // Add hover title
         node.append('title')
-            .text(d => d.name);
+            .text(d => d.name || d.company_name);
         
         // Add click handler for node details
         node.on('click', (event, d) => this.showNodeDetails(d));
@@ -577,7 +520,7 @@ class InvestorNetwork {
                 
                 // Find matching nodes
                 const matches = simulation.nodes().filter(node => 
-                    node.name.toLowerCase().includes(query)
+                    (node.name || node.company_name || '').toLowerCase().includes(query)
                 );
                 
                 // Display matches
@@ -585,7 +528,7 @@ class InvestorNetwork {
                 matches.slice(0, 5).forEach(match => {
                     const item = document.createElement('div');
                     item.className = 'search-result-item';
-                    item.textContent = match.name;
+                    item.textContent = match.name || match.company_name;
                     item.addEventListener('click', () => {
                         // Focus on this node
                         this.focusOnNode(match, svg, zoom, width, height);
@@ -599,40 +542,24 @@ class InvestorNetwork {
         }
     }
     
-    focusOnNode(node, svg, zoom, width, height) {
-        // Calculate zoom transform to center on the node
-        const scale = 2;
-        const x = width / 2 - node.x * scale;
-        const y = height / 2 - node.y * scale;
-        
-        // Transition to the node
-        svg.transition().duration(750).call(
-            zoom.transform,
-            d3.zoomIdentity.translate(x, y).scale(scale)
-        );
-        
-        // Show node details
-        this.showNodeDetails(node);
-    }
-    
     prepareNetworkData() {
         const nodes = [
             ...this.mockData.contacts.map(c => ({ 
                 ...c, 
                 id: `person-${c.id}`, 
                 type: 'person',
-                company: c.company  // Keep reference to company
+                company: c.company
             })),
-            ...this.mockData.companies.map(c => ({ 
+            ...(this.companies || []).map(c => ({ 
                 ...c, 
                 id: `company-${c.id}`, 
-                type: 'company' 
+                type: 'company',
+                name: c.company_name
             })),
             ...this.mockData.events.map(e => ({ 
                 ...e, 
                 id: `event-${e.id}`, 
-                type: 'event',
-                related_companies: e.related_companies || [] // Keep reference to companies
+                type: 'event'
             }))
         ];
         
@@ -645,19 +572,6 @@ class InvestorNetwork {
                     source: `person-${contact.id}`,
                     target: `company-${contact.company}`,
                     type: 'works_at'
-                });
-            }
-        });
-        
-        // Link events to companies
-        this.mockData.events.forEach(event => {
-            if (event.related_companies && Array.isArray(event.related_companies)) {
-                event.related_companies.forEach(companyId => {
-                    links.push({
-                        source: `event-${event.id}`,
-                        target: `company-${companyId}`,
-                        type: 'involves'
-                    });
                 });
             }
         });
@@ -681,20 +595,20 @@ class InvestorNetwork {
         if (!details || !content) return;
         
         content.innerHTML = `
-            <h4>${d.name}</h4>
+            <h4>${d.name || d.company_name}</h4>
             <p><strong>Type:</strong> ${d.type}</p>
             ${d.type === 'person' ? `
                 <p><strong>Position:</strong> ${d.position || 'N/A'}</p>
                 <p><strong>Email:</strong> ${d.email || 'N/A'}</p>
                 <p><strong>Company:</strong> ${
                     d.company ? 
-                    this.mockData.companies.find(c => c.id === d.company)?.name || d.company 
+                    (this.companies?.find(c => c.id === d.company)?.company_name || d.company)
                     : 'N/A'
                 }</p>
             ` : d.type === 'company' ? `
                 <p><strong>Industry:</strong> ${d.industry || 'N/A'}</p>
                 <p><strong>Website:</strong> ${d.website ? `<a href="${d.website}" target="_blank">${d.website}</a>` : 'N/A'}</p>
-                <p><strong>Description:</strong> ${d.description || 'N/A'}</p>
+                <p><strong>LinkedIn:</strong> ${d.linkedin_page ? `<a href="${d.linkedin_page}" target="_blank">View Profile</a>` : 'N/A'}</p>
             ` : `
                 <p><strong>Date:</strong> ${d.date ? new Date(d.date).toLocaleDateString() : 'N/A'}</p>
                 <p><strong>Location:</strong> ${d.location || 'N/A'}</p>
@@ -714,6 +628,22 @@ class InvestorNetwork {
         });
         
         content.appendChild(closeBtn);
+    }
+    
+    focusOnNode(node, svg, zoom, width, height) {
+        // Calculate zoom transform to center on the node
+        const scale = 2;
+        const x = width / 2 - node.x * scale;
+        const y = height / 2 - node.y * scale;
+        
+        // Transition to the node
+        svg.transition().duration(750).call(
+            zoom.transform,
+            d3.zoomIdentity.translate(x, y).scale(scale)
+        );
+        
+        // Show node details
+        this.showNodeDetails(node);
     }
     
     drag(simulation) {
