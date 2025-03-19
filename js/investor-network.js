@@ -1,8 +1,48 @@
 // Investor Network functionality
 class InvestorNetwork {
     constructor() {
+        // Make sure jQuery is defined
+        if (typeof $ === 'undefined') {
+            console.error('jQuery is not available. This component requires jQuery to function properly.');
+            return;
+        }
+        
+        // Check if Bootstrap's modal plugin is available
+        if (!$.fn.modal) {
+            console.warn('Bootstrap modal plugin is not available. Modal functionality may be limited.');
+        }
+        
         this.token = localStorage.getItem('token');
-        this.baseUrl = `${window.config.apiUrl}/api/investors`;
+        
+        // Bind methods to maintain this context
+        this.fetchContacts = this.fetchContacts.bind(this);
+        this.fetchCompanies = this.fetchCompanies.bind(this);
+        this.fetchEvents = this.fetchEvents.bind(this);
+        this.loadData = this.loadData.bind(this);
+        this.createCompany = this.createCompany.bind(this);
+        this.createContact = this.createContact.bind(this);
+        this.createEvent = this.createEvent.bind(this);
+        this.handleFormSubmit = this.handleFormSubmit.bind(this);
+        this.populateLeadsList = this.populateLeadsList.bind(this);
+        this.viewLeadDetails = this.viewLeadDetails.bind(this);
+        
+        this.init();
+    }
+
+    init() {
+        // Set up API URL based on environment
+        try {
+            // Check if config.js is loaded
+            if (window.config && window.config.getApiUrl) {
+                this.baseUrl = window.config.getApiUrl('/api/investors');
+                console.log('Using API URL from config:', this.baseUrl);
+            } else {
+                console.warn('Config not found, using default API URL');
+            }
+        } catch (error) {
+            console.error('Error setting up API URL:', error);
+        }
+        
         this.mockData = this.generateMockData();
         this.setupEventListeners();
         this.loadData();
@@ -310,42 +350,74 @@ class InvestorNetwork {
         // Clear existing items
         list.innerHTML = '';
         
+        if (items.length === 0) {
+            list.innerHTML = '<div class="empty-state">No items found</div>';
+            return;
+        }
+        
         // Add new items
         items.forEach(item => {
             const listItem = document.createElement('div');
-            listItem.className = 'list-item';
+            listItem.className = 'lead-item';
             
-            // Determine item name based on type
-            let itemName = '';
-            let itemDetails = '';
+            // Create icon element
+            const icon = document.createElement('div');
+            icon.className = 'lead-icon';
             
-            if (listId === 'companiesList') {
-                itemName = item.company_name || 'Unnamed Company';
-                itemDetails = item.industry || '';
-            } else if (listId === 'peopleList') {
-                itemName = item.name || 'Unnamed Contact';
-                itemDetails = item.position ? `${item.position}${item.company ? ' at ' + item.company : ''}` : '';
-            } else if (listId === 'eventsList') {
-                // Use event_name for API data or fallback to name for mock data
-                itemName = item.event_name || item.name || 'Unnamed Event';
-                const eventDate = item.date ? new Date(item.date).toLocaleDateString() : 'No date';
-                itemDetails = `${eventDate} - ${item.location || 'No location'}`;
+            if (listId === 'peopleList') {
+                icon.innerHTML = '<i class="fas fa-user"></i>';
+            } else if (listId === 'companiesList') {
+                icon.innerHTML = '<i class="fas fa-building"></i>';
+            } else {
+                icon.innerHTML = '<i class="fas fa-calendar"></i>';
             }
             
-            // Create item content
-            listItem.innerHTML = `
-                <div class="item-header">
-                    <h4>${itemName}</h4>
-                    <div class="item-actions">
-                        <button class="btn btn-sm btn-outline-primary view-details-btn">View</button>
-                    </div>
-                </div>
-                <p class="item-details">${itemDetails}</p>
-            `;
+            // Create content element
+            const content = document.createElement('div');
+            content.className = 'lead-content';
             
-            // Add click event for view details button
-            const viewButton = listItem.querySelector('.view-details-btn');
-            viewButton.addEventListener('click', () => this.viewLeadDetails(item));
+            // Determine item name based on type
+            let titleText = '';
+            let detailsText = '';
+            
+            if (listId === 'companiesList') {
+                titleText = item.company_name || 'Unnamed Company';
+                detailsText = item.industry || 'Company';
+            } else if (listId === 'peopleList') {
+                titleText = item.name || 'Unnamed Contact';
+                detailsText = item.position ? `${item.position}${item.company ? ' at ' + item.company : ''}` : 'Contact';
+            } else if (listId === 'eventsList') {
+                // Use event_name for API data or fallback to name for mock data
+                titleText = item.event_name || item.name || 'Unnamed Event';
+                const eventDate = item.date ? new Date(item.date).toLocaleDateString() : 'No date';
+                detailsText = `${eventDate} - ${item.location || 'Event'}`;
+            }
+            
+            // Create title and details
+            const title = document.createElement('h4');
+            title.textContent = titleText;
+            
+            const details = document.createElement('p');
+            details.textContent = detailsText;
+            
+            content.appendChild(title);
+            content.appendChild(details);
+            
+            // Add view button
+            const viewBtn = document.createElement('button');
+            viewBtn.className = 'btn btn-sm btn-outline';
+            viewBtn.innerHTML = '<i class="fas fa-eye"></i>';
+            viewBtn.addEventListener('click', (event) => {
+                console.log('View button clicked for item:', item);
+                event.preventDefault();
+                event.stopPropagation();
+                this.viewLeadDetails(item);
+            });
+            
+            // Append all elements
+            listItem.appendChild(icon);
+            listItem.appendChild(content);
+            listItem.appendChild(viewBtn);
             
             list.appendChild(listItem);
         });
@@ -400,70 +472,110 @@ class InvestorNetwork {
     }
 
     viewLeadDetails(item) {
-        // Get the modal element
-        const modal = document.getElementById('leadDetailsModal');
-        if (!modal) return;
-        
-        // Get the modal title and body
-        const modalTitle = modal.querySelector('.modal-title');
-        const modalBody = modal.querySelector('.modal-body');
-        
-        // Determine item type and set title
-        if ('company_name' in item) {
-            // Company type
-            modalTitle.textContent = item.company_name || 'Company Details';
-            modalBody.innerHTML = `
-                <p><strong>Industry:</strong> ${item.industry || 'N/A'}</p>
-                <p><strong>Address:</strong> ${item.physical_address || 'N/A'}</p>
-                <p><strong>Website:</strong> ${item.website ? `<a href="${item.website}" target="_blank">${item.website}</a>` : 'N/A'}</p>
-                <p><strong>LinkedIn:</strong> ${item.linkedin_page ? `<a href="${item.linkedin_page}" target="_blank">View Profile</a>` : 'N/A'}</p>
-            `;
-        } else if ('name' in item && 'position' in item) {
-            // Person type (checking for position to distinguish from events)
-            modalTitle.textContent = item.name || 'Contact Details';
-            modalBody.innerHTML = `
-                <p><strong>Position:</strong> ${item.position || 'N/A'}</p>
-                <p><strong>Company:</strong> ${item.company || 'N/A'}</p>
-                <p><strong>Email:</strong> ${item.email ? `<a href="mailto:${item.email}">${item.email}</a>` : 'N/A'}</p>
-                <p><strong>LinkedIn:</strong> ${item.linkedin_profile ? `<a href="${item.linkedin_profile}" target="_blank">View Profile</a>` : 'N/A'}</p>
-                <p><strong>Recent Posts:</strong> ${item.recent_posts || 'None'}</p>
-            `;
-        } else if ('event_name' in item || ('name' in item && 'date' in item && 'location' in item)) {
-            // Event type
-            const eventName = item.event_name || item.name;
-            modalTitle.textContent = eventName || 'Event Details';
+        try {
+            // Get the modal element using jQuery
+            if (typeof $ === 'undefined') {
+                console.error('jQuery is not available');
+                return;
+            }
+
+            console.log('viewLeadDetails called for item:', item);
             
-            // Format date
-            const eventDate = item.date ? new Date(item.date).toLocaleDateString() : 'N/A';
-            const eventTime = item.time || 'N/A';
+            // Make sure we have the correct modal element
+            const modalId = 'leadDetailsModal';
+            const modal = $('#' + modalId);
             
-            // Format keywords
-            let keywordsHtml = 'N/A';
-            if (item.keywords && Array.isArray(item.keywords) && item.keywords.length > 0) {
-                keywordsHtml = item.keywords.map(k => `<span class="badge bg-secondary me-1">${k}</span>`).join(' ');
-            } else if (item.keywords && typeof item.keywords === 'string') {
-                keywordsHtml = item.keywords.split(',').map(k => 
-                    `<span class="badge bg-secondary me-1">${k.trim()}</span>`
-                ).join(' ');
+            if (!modal.length) {
+                console.error(`Modal with ID ${modalId} not found`);
+                return;
             }
             
-            modalBody.innerHTML = `
-                <p><strong>Date:</strong> ${eventDate}</p>
-                <p><strong>Time:</strong> ${eventTime}</p>
-                <p><strong>Location:</strong> ${item.location || 'N/A'}</p>
-                <p><strong>Type:</strong> ${item.type || 'N/A'}</p>
-                <p><strong>Target Audience:</strong> ${item.target_audience || 'N/A'}</p>
-                <p><strong>Keywords:</strong> ${keywordsHtml}</p>
-                <p><strong>Description:</strong> ${item.description || 'N/A'}</p>
-            `;
-        } else {
-            // Generic format for unknown item types
-            modalTitle.textContent = 'Item Details';
-            modalBody.innerHTML = '<p>No details available for this item.</p>';
+            // Get modal components
+            const modalTitle = $('#leadDetailsTitle');
+            const modalBody = $('#leadDetailsBody');
+            
+            if (!modalTitle.length || !modalBody.length) {
+                console.error('Modal title or body elements not found');
+                console.log('Modal content:', modal.html());
+                return;
+            }
+            
+            console.log('Setting up modal content');
+            
+            // Determine item type and set title
+            if ('company_name' in item) {
+                // Company type
+                modalTitle.text(item.company_name || 'Company Details');
+                modalBody.html(`
+                    <p><strong>Industry:</strong> ${item.industry || 'N/A'}</p>
+                    <p><strong>Address:</strong> ${item.physical_address || 'N/A'}</p>
+                    <p><strong>Website:</strong> ${item.website ? `<a href="${item.website}" target="_blank">${item.website}</a>` : 'N/A'}</p>
+                    <p><strong>LinkedIn:</strong> ${item.linkedin_page ? `<a href="${item.linkedin_page}" target="_blank">View Profile</a>` : 'N/A'}</p>
+                `);
+            } else if ('name' in item && 'position' in item) {
+                // Person type (checking for position to distinguish from events)
+                modalTitle.text(item.name || 'Contact Details');
+                modalBody.html(`
+                    <p><strong>Position:</strong> ${item.position || 'N/A'}</p>
+                    <p><strong>Company:</strong> ${item.company || 'N/A'}</p>
+                    <p><strong>Email:</strong> ${item.email ? `<a href="mailto:${item.email}">${item.email}</a>` : 'N/A'}</p>
+                    <p><strong>LinkedIn:</strong> ${item.linkedin_profile ? `<a href="${item.linkedin_profile}" target="_blank">View Profile</a>` : 'N/A'}</p>
+                    <p><strong>Recent Posts:</strong> ${item.recent_posts || 'None'}</p>
+                `);
+            } else if ('event_name' in item || ('name' in item && 'date' in item && 'location' in item)) {
+                // Event type
+                const eventName = item.event_name || item.name;
+                modalTitle.text(eventName || 'Event Details');
+                
+                // Format date
+                const eventDate = item.date ? new Date(item.date).toLocaleDateString() : 'N/A';
+                const eventTime = item.time || 'N/A';
+                
+                // Format keywords
+                let keywordsHtml = 'N/A';
+                if (item.keywords && Array.isArray(item.keywords) && item.keywords.length > 0) {
+                    keywordsHtml = item.keywords.map(k => `<span class="badge bg-secondary me-1">${k}</span>`).join(' ');
+                } else if (item.keywords && typeof item.keywords === 'string') {
+                    keywordsHtml = item.keywords.split(',').map(k => 
+                        `<span class="badge bg-secondary me-1">${k.trim()}</span>`
+                    ).join(' ');
+                }
+                
+                modalBody.html(`
+                    <p><strong>Date:</strong> ${eventDate}</p>
+                    <p><strong>Time:</strong> ${eventTime}</p>
+                    <p><strong>Location:</strong> ${item.location || 'N/A'}</p>
+                    <p><strong>Type:</strong> ${item.type || 'N/A'}</p>
+                    <p><strong>Target Audience:</strong> ${item.target_audience || 'N/A'}</p>
+                    <p><strong>Keywords:</strong> ${keywordsHtml}</p>
+                    <p><strong>Description:</strong> ${item.description || 'N/A'}</p>
+                `);
+            } else {
+                // Generic format for unknown item types
+                modalTitle.text('Item Details');
+                modalBody.html('<p>No details available for this item.</p>');
+            }
+            
+            console.log('Opening modal with Bootstrap 4.6');
+            
+            // Try multiple ways to show the modal for compatibility
+            try {
+                // Bootstrap 4.x way
+                modal.modal('show');
+            } catch (modalError) {
+                console.error('Error showing modal with modal():', modalError);
+                try {
+                    // Alternative approach using direct jQuery
+                    modal.addClass('show').css('display', 'block');
+                    $('body').addClass('modal-open').append('<div class="modal-backdrop fade show"></div>');
+                } catch (alternativeError) {
+                    console.error('Error with alternative modal approach:', alternativeError);
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error displaying modal:', error);
         }
-        
-        // Show the modal
-        $(modal).modal('show');
     }
 
     getFieldsForLeadType(leadType) {

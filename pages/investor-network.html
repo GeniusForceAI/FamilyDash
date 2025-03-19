@@ -203,65 +203,73 @@
         import { auth } from '../js/auth.js';
         import { theme } from '../js/theme.js';
         
+        // Expose auth to window for other scripts to use
+        window.auth = auth;
+        
         // Check authentication
         document.addEventListener('DOMContentLoaded', async () => {
-            const isAuthenticated = await auth.checkAuth();
-            if (!isAuthenticated) {
-                window.location.href = '../pages/login.html';
-            }
-            
-            // Set user name
-            const user = auth.getCurrentUser();
-            if (user) {
-                document.getElementById('userName').textContent = user.name || user.email;
-            }
-            
-            // Initialize theme
-            theme.init();
-            
-            // Initialize view/manage mode toggle
-            const viewMode = document.getElementById('viewMode');
-            const manageMode = document.getElementById('manageMode');
-            const networkView = document.getElementById('networkView');
-            const managementView = document.getElementById('managementView');
-            
-            viewMode.addEventListener('click', () => {
-                viewMode.classList.add('active');
-                manageMode.classList.remove('active');
-                networkView.classList.add('active');
-                managementView.classList.remove('active');
-                initializeNetwork(); // Refresh network view
-            });
-            
-            manageMode.addEventListener('click', () => {
-                manageMode.classList.add('active');
-                viewMode.classList.remove('active');
-                networkView.classList.remove('active');
-                managementView.classList.add('active');
-                loadDashboardData(); // Refresh management view
-            });
-            
-            // Initialize tabs
-            const tabBtns = document.querySelectorAll('.tab-btn');
-            tabBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const tabName = btn.getAttribute('data-tab');
-                    
-                    // Update active tab button
-                    tabBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    
-                    // Update active tab pane
-                    document.querySelectorAll('.tab-pane').forEach(pane => {
-                        pane.classList.remove('active');
-                    });
-                    document.getElementById(`${tabName}-tab`).classList.add('active');
+            try {
+                // First check if token exists
+                if (!auth.isLoggedIn()) {
+                    window.location.href = '../pages/login.html';
+                    return;
+                }
+                
+                // Set user name if we have user data
+                const user = auth.getCurrentUser();
+                if (user) {
+                    document.getElementById('userName').textContent = user.name || user.email;
+                }
+                
+                // Initialize theme
+                theme.init();
+                
+                // Initialize view/manage mode toggle
+                const viewMode = document.getElementById('viewMode');
+                const manageMode = document.getElementById('manageMode');
+                const networkView = document.getElementById('networkView');
+                const managementView = document.getElementById('managementView');
+                
+                viewMode.addEventListener('click', () => {
+                    viewMode.classList.add('active');
+                    manageMode.classList.remove('active');
+                    networkView.classList.add('active');
+                    managementView.classList.remove('active');
+                    initializeNetwork(); // Refresh network view
                 });
-            });
-            
-            // Load initial data
-            loadDashboardData();
-            initializeNetwork();
+                
+                manageMode.addEventListener('click', () => {
+                    manageMode.classList.add('active');
+                    viewMode.classList.remove('active');
+                    networkView.classList.remove('active');
+                    managementView.classList.add('active');
+                    loadDashboardData(); // Refresh management view
+                });
+                
+                // Initialize tabs
+                const tabBtns = document.querySelectorAll('.tab-btn');
+                tabBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const tabName = btn.getAttribute('data-tab');
+                        
+                        // Update active tab button
+                        tabBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        
+                        // Update active tab pane
+                        document.querySelectorAll('.tab-pane').forEach(pane => {
+                            pane.classList.remove('active');
+                        });
+                        document.getElementById(`${tabName}-tab`).classList.add('active');
+                    });
+                });
+                
+                // Load initial data
+                loadDashboardData();
+                initializeNetwork();
+            } catch (error) {
+                console.error('Error initializing app:', error);
+            }
         });
         
         // Network visualization
@@ -578,7 +586,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="leadDetailsTitle">Lead Details</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="$('#leadDetailsModal').modal('hide');">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -586,7 +594,7 @@
                     <!-- Content will be dynamically inserted here -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$('#leadDetailsModal').modal('hide');">Close</button>
                 </div>
             </div>
         </div>

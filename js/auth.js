@@ -18,6 +18,50 @@ export const auth = {
         }
     },
 
+    // Check authentication and return a promise
+    async checkAuth() {
+        if (!this.isLoggedIn()) {
+            return false;
+        }
+        
+        try {
+            // Verify token with the server
+            const response = await fetch(config.getApiUrl('/api/users/me'), {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${this.getToken()}`,
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                console.error('Auth check failed:', response.status);
+                return false;
+            }
+            
+            // Store user data
+            const userData = await response.json();
+            localStorage.setItem('user', JSON.stringify(userData));
+            return true;
+        } catch (error) {
+            console.error('Auth check error:', error);
+            return false;
+        }
+    },
+    
+    // Get current user data
+    getCurrentUser() {
+        const userJson = localStorage.getItem('user');
+        if (!userJson) return null;
+        
+        try {
+            return JSON.parse(userJson);
+        } catch (e) {
+            console.error('Error parsing user data:', e);
+            return null;
+        }
+    },
+
     // Get the current token
     getToken() {
         return localStorage.getItem('token');
