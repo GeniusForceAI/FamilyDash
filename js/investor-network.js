@@ -19,9 +19,9 @@ class InvestorNetwork {
         ];
         
         const events = [
-            { id: 'event1', name: 'Annual Tech Conference', date: '2025-05-15', time: '09:00', location: 'San Francisco', type: 'Conference', description: 'Annual technology conference' },
-            { id: 'event2', name: 'Investment Pitch Day', date: '2025-04-10', time: '14:00', location: 'New York', type: 'Pitch', description: 'Startup pitch event' },
-            { id: 'event3', name: 'Biotech Workshop', date: '2025-06-20', time: '10:00', location: 'Boston', type: 'Workshop', description: 'Workshop on biotech innovations' }
+            { id: 'event1', name: 'Annual Tech Conference', date: '2025-05-15', time: '09:00', location: 'San Francisco', type: 'Conference', description: 'Annual technology conference', keywords: ['tech', 'innovation', 'conference'], target_audience: 'Industry professionals' },
+            { id: 'event2', name: 'Investment Pitch Day', date: '2025-04-10', time: '14:00', location: 'New York', type: 'Pitch', description: 'Startup pitch event', keywords: ['investment', 'pitch', 'startups'], target_audience: 'Investors and startups' },
+            { id: 'event3', name: 'Biotech Workshop', date: '2025-06-20', time: '10:00', location: 'Boston', type: 'Workshop', description: 'Workshop on biotech innovations', keywords: ['biotech', 'innovation', 'workshop'], target_audience: 'Biotech professionals' }
         ];
         
         const fundedCompanies = [
@@ -104,8 +104,17 @@ class InvestorNetwork {
                 contacts = [];
             }
             
-            // Use mock data for other entities until we implement them
-            const events = this.mockData.events;
+            // Fetch events from API
+            let events = [];
+            try {
+                events = await this.fetchEvents();
+            } catch (error) {
+                console.error('Error loading events:', error);
+                // Fallback to mock data if API fails
+                events = this.mockData.events;
+            }
+            
+            // Use mock data for funded companies until we implement them
             const fundedCompanies = this.mockData.fundedCompanies;
 
             // Update dashboard stats
@@ -123,14 +132,18 @@ class InvestorNetwork {
             this.populateLeadsList('companiesList', companies);
             this.populateLeadsList('eventsList', events);
 
-            // Store companies and contacts for network visualization
+            // Store data for network visualization
             this.companies = companies;
             this.contacts = contacts;
-
+            this.events = events;
+            
+            // Initialize network visualization if in view mode
+            if (document.getElementById('viewMode').classList.contains('active')) {
+                this.initializeNetwork();
+            }
         } catch (error) {
             console.error('Error loading data:', error);
-            // Show error message to user
-            alert('Error loading data. Please try again.');
+            alert('Failed to load data. Please try again later.');
         }
     }
 
@@ -161,13 +174,19 @@ class InvestorNetwork {
     }
 
     async fetchEvents() {
-        const response = await fetch(`${this.baseUrl}/events`, {
-            headers: {
-                'Authorization': `Bearer ${this.token}`
-            }
-        });
-        if (!response.ok) throw new Error('Failed to fetch events');
-        return await response.json();
+        try {
+            const response = await fetch(`${this.baseUrl}/events`, {
+                headers: {
+                    'Authorization': `Bearer ${this.token}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch events');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching events:', error);
+            // Return empty array as fallback to avoid breaking the UI
+            return [];
+        }
     }
 
     async fetchFundedCompanies() {
@@ -211,6 +230,55 @@ class InvestorNetwork {
         return await response.json();
     }
 
+    async createEvent(eventData) {
+        // Map form field names to API model fields
+        const apiData = {
+            event_name: eventData.name,
+            date: eventData.date,
+            location: eventData.location,
+            target_audience: eventData.target_audience || '',
+            keywords: []
+        };
+        
+        // Format date properly
+        if (apiData.date) {
+            // Ensure date is in ISO format for the API
+            const dateObj = new Date(apiData.date);
+            if (!isNaN(dateObj.getTime())) {
+                apiData.date = dateObj.toISOString().split('T')[0];
+            }
+        }
+        
+        // Parse keywords
+        if (eventData.keywords) {
+            if (typeof eventData.keywords === 'string') {
+                apiData.keywords = eventData.keywords.split(',')
+                    .map(k => k.trim())
+                    .filter(k => k);
+            } else if (Array.isArray(eventData.keywords)) {
+                apiData.keywords = eventData.keywords;
+            }
+        }
+        
+        // Make the API request
+        const response = await fetch(`${this.baseUrl}/events`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(apiData)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('Failed to create event:', errorData);
+            throw new Error(`Failed to create event: ${response.status} ${response.statusText}`);
+        }
+        
+        return await response.json();
+    }
+
     async updateCompany(id, companyData) {
         const response = await fetch(`${this.baseUrl}/companies/${id}`, {
             method: 'PUT',
@@ -239,55 +307,45 @@ class InvestorNetwork {
         const list = document.getElementById(listId);
         if (!list) return;
         
+        // Clear existing items
         list.innerHTML = '';
         
-        if (items.length === 0) {
-            list.innerHTML = '<div class="empty-state">No items found</div>';
-            return;
-        }
-        
+        // Add new items
         items.forEach(item => {
             const listItem = document.createElement('div');
-            listItem.className = 'lead-item';
+            listItem.className = 'list-item';
             
-            const icon = document.createElement('div');
-            icon.className = 'lead-icon';
+            // Determine item name based on type
+            let itemName = '';
+            let itemDetails = '';
             
-            if (listId === 'peopleList') {
-                icon.innerHTML = '<i class="fas fa-user"></i>';
-            } else if (listId === 'companiesList') {
-                icon.innerHTML = '<i class="fas fa-building"></i>';
-            } else {
-                icon.innerHTML = '<i class="fas fa-calendar"></i>';
+            if (listId === 'companiesList') {
+                itemName = item.company_name || 'Unnamed Company';
+                itemDetails = item.industry || '';
+            } else if (listId === 'peopleList') {
+                itemName = item.name || 'Unnamed Contact';
+                itemDetails = item.position ? `${item.position}${item.company ? ' at ' + item.company : ''}` : '';
+            } else if (listId === 'eventsList') {
+                // Use event_name for API data or fallback to name for mock data
+                itemName = item.event_name || item.name || 'Unnamed Event';
+                const eventDate = item.date ? new Date(item.date).toLocaleDateString() : 'No date';
+                itemDetails = `${eventDate} - ${item.location || 'No location'}`;
             }
             
-            const content = document.createElement('div');
-            content.className = 'lead-content';
+            // Create item content
+            listItem.innerHTML = `
+                <div class="item-header">
+                    <h4>${itemName}</h4>
+                    <div class="item-actions">
+                        <button class="btn btn-sm btn-outline-primary view-details-btn">View</button>
+                    </div>
+                </div>
+                <p class="item-details">${itemDetails}</p>
+            `;
             
-            const title = document.createElement('h4');
-            title.textContent = listId === 'companiesList' ? item.company_name : item.name;
-            
-            const details = document.createElement('p');
-            if (listId === 'peopleList') {
-                details.textContent = item.position || 'Contact';
-            } else if (listId === 'companiesList') {
-                details.textContent = item.industry || 'Company';
-            } else {
-                details.textContent = new Date(item.date).toLocaleDateString() || 'Event';
-            }
-            
-            content.appendChild(title);
-            content.appendChild(details);
-            
-            listItem.appendChild(icon);
-            listItem.appendChild(content);
-            
-            // Add view button
-            const viewBtn = document.createElement('button');
-            viewBtn.className = 'btn btn-sm btn-outline';
-            viewBtn.innerHTML = '<i class="fas fa-eye"></i>';
-            viewBtn.addEventListener('click', () => this.viewLeadDetails(item));
-            listItem.appendChild(viewBtn);
+            // Add click event for view details button
+            const viewButton = listItem.querySelector('.view-details-btn');
+            viewButton.addEventListener('click', () => this.viewLeadDetails(item));
             
             list.appendChild(listItem);
         });
@@ -320,59 +378,49 @@ class InvestorNetwork {
                     }
                     result = await this.createContact(data);
                 }
+            } else if (leadType === 'event') {
+                if (action === 'create') {
+                    result = await this.createEvent(data);
+                }
             }
-            // Add similar blocks for other lead types
             
-            // Refresh the data
-            await this.loadData();
+            // Show success message
+            alert(`${leadType.charAt(0).toUpperCase() + leadType.slice(1)} ${action}d successfully!`);
             
             // Clear the form
             event.target.reset();
             
-            // Show success message
-            alert('Operation completed successfully');
+            // Reload data to update UI
+            await this.loadData();
             
         } catch (error) {
             console.error('Error:', error);
-            alert('Error performing operation. Please try again.');
+            alert(`Error ${action}ing ${leadType}: ${error.message}`);
         }
     }
 
     viewLeadDetails(item) {
+        // Get the modal element
         const modal = document.getElementById('leadDetailsModal');
-        const modalTitle = document.getElementById('leadDetailsTitle');
-        const modalBody = document.getElementById('leadDetailsBody');
+        if (!modal) return;
         
-        if (!modal || !modalTitle || !modalBody) return;
+        // Get the modal title and body
+        const modalTitle = modal.querySelector('.modal-title');
+        const modalBody = modal.querySelector('.modal-body');
         
-        // Set title based on item type
-        let title = '';
+        // Determine item type and set title
         if ('company_name' in item) {
-            title = item.company_name;
-        } else if ('name' in item) {
-            title = item.name;
-        } else if ('event_name' in item) {
-            title = item.event_name;
-        } else {
-            title = 'Lead Details';
-        }
-        
-        modalTitle.textContent = title;
-        
-        // Clear existing content
-        modalBody.innerHTML = '';
-        
-        // Determine item type and format details accordingly
-        if ('company_name' in item) {
-            // Format company details
+            // Company type
+            modalTitle.textContent = item.company_name || 'Company Details';
             modalBody.innerHTML = `
                 <p><strong>Industry:</strong> ${item.industry || 'N/A'}</p>
                 <p><strong>Address:</strong> ${item.physical_address || 'N/A'}</p>
                 <p><strong>Website:</strong> ${item.website ? `<a href="${item.website}" target="_blank">${item.website}</a>` : 'N/A'}</p>
                 <p><strong>LinkedIn:</strong> ${item.linkedin_page ? `<a href="${item.linkedin_page}" target="_blank">View Profile</a>` : 'N/A'}</p>
             `;
-        } else if ('name' in item) {
-            // Format person details
+        } else if ('name' in item && 'position' in item) {
+            // Person type (checking for position to distinguish from events)
+            modalTitle.textContent = item.name || 'Contact Details';
             modalBody.innerHTML = `
                 <p><strong>Position:</strong> ${item.position || 'N/A'}</p>
                 <p><strong>Company:</strong> ${item.company || 'N/A'}</p>
@@ -380,17 +428,37 @@ class InvestorNetwork {
                 <p><strong>LinkedIn:</strong> ${item.linkedin_profile ? `<a href="${item.linkedin_profile}" target="_blank">View Profile</a>` : 'N/A'}</p>
                 <p><strong>Recent Posts:</strong> ${item.recent_posts || 'None'}</p>
             `;
-        } else if ('event_name' in item || 'name' in item && 'date' in item) {
-            // Format event details
+        } else if ('event_name' in item || ('name' in item && 'date' in item && 'location' in item)) {
+            // Event type
+            const eventName = item.event_name || item.name;
+            modalTitle.textContent = eventName || 'Event Details';
+            
+            // Format date
             const eventDate = item.date ? new Date(item.date).toLocaleDateString() : 'N/A';
+            const eventTime = item.time || 'N/A';
+            
+            // Format keywords
+            let keywordsHtml = 'N/A';
+            if (item.keywords && Array.isArray(item.keywords) && item.keywords.length > 0) {
+                keywordsHtml = item.keywords.map(k => `<span class="badge bg-secondary me-1">${k}</span>`).join(' ');
+            } else if (item.keywords && typeof item.keywords === 'string') {
+                keywordsHtml = item.keywords.split(',').map(k => 
+                    `<span class="badge bg-secondary me-1">${k.trim()}</span>`
+                ).join(' ');
+            }
+            
             modalBody.innerHTML = `
                 <p><strong>Date:</strong> ${eventDate}</p>
+                <p><strong>Time:</strong> ${eventTime}</p>
                 <p><strong>Location:</strong> ${item.location || 'N/A'}</p>
                 <p><strong>Type:</strong> ${item.type || 'N/A'}</p>
+                <p><strong>Target Audience:</strong> ${item.target_audience || 'N/A'}</p>
+                <p><strong>Keywords:</strong> ${keywordsHtml}</p>
                 <p><strong>Description:</strong> ${item.description || 'N/A'}</p>
             `;
         } else {
             // Generic format for unknown item types
+            modalTitle.textContent = 'Item Details';
             modalBody.innerHTML = '<p>No details available for this item.</p>';
         }
         
@@ -416,6 +484,17 @@ class InvestorNetwork {
                     { name: 'linkedin_profile', label: 'LinkedIn Profile', type: 'url', required: true },
                     { name: 'company', label: 'Company', type: 'text', required: true },
                     { name: 'recent_posts', label: 'Recent Posts', type: 'text', required: false }
+                ];
+            case 'event':
+                return [
+                    { name: 'name', label: 'Event Name', type: 'text', required: true },
+                    { name: 'date', label: 'Date', type: 'date', required: true },
+                    { name: 'time', label: 'Time', type: 'time', required: true },
+                    { name: 'location', label: 'Location', type: 'text', required: true },
+                    { name: 'type', label: 'Type', type: 'text', required: true },
+                    { name: 'description', label: 'Description', type: 'text', required: false },
+                    { name: 'keywords', label: 'Keywords', type: 'text', required: false },
+                    { name: 'target_audience', label: 'Target Audience', type: 'text', required: false }
                 ];
             // Add cases for other lead types
             default:
