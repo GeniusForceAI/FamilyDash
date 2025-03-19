@@ -94,8 +94,17 @@ class InvestorNetwork {
             // Fetch companies from API
             const companies = await this.fetchCompanies();
             
+            // Fetch contacts from API
+            let contacts = [];
+            try {
+                contacts = await this.fetchContacts();
+            } catch (error) {
+                console.error('Error loading contacts:', error);
+                // Use empty array if there was an error
+                contacts = [];
+            }
+            
             // Use mock data for other entities until we implement them
-            const contacts = this.mockData.contacts;
             const events = this.mockData.events;
             const fundedCompanies = this.mockData.fundedCompanies;
 
@@ -114,8 +123,9 @@ class InvestorNetwork {
             this.populateLeadsList('companiesList', companies);
             this.populateLeadsList('eventsList', events);
 
-            // Store companies for network visualization
+            // Store companies and contacts for network visualization
             this.companies = companies;
+            this.contacts = contacts;
 
         } catch (error) {
             console.error('Error loading data:', error);
@@ -135,13 +145,19 @@ class InvestorNetwork {
     }
 
     async fetchContacts() {
-        const response = await fetch(`${this.baseUrl}/contacts`, {
-            headers: {
-                'Authorization': `Bearer ${this.token}`
-            }
-        });
-        if (!response.ok) throw new Error('Failed to fetch contacts');
-        return await response.json();
+        try {
+            const response = await fetch(`${this.baseUrl}/contacts`, {
+                headers: {
+                    'Authorization': `Bearer ${this.token}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch contacts');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching contacts:', error);
+            // Return empty array as fallback to avoid breaking the UI
+            return [];
+        }
     }
 
     async fetchEvents() {
@@ -174,6 +190,24 @@ class InvestorNetwork {
             body: JSON.stringify(companyData)
         });
         if (!response.ok) throw new Error('Failed to create company');
+        return await response.json();
+    }
+
+    async createContact(contactData) {
+        // Ensure recent_posts is present, even if empty
+        if (!contactData.recent_posts || contactData.recent_posts.trim() === '') {
+            contactData.recent_posts = 'None';
+        }
+        
+        const response = await fetch(`${this.baseUrl}/contacts`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(contactData)
+        });
+        if (!response.ok) throw new Error('Failed to create contact');
         return await response.json();
     }
 
@@ -278,6 +312,14 @@ class InvestorNetwork {
                 } else if (action === 'update' && data.id) {
                     result = await this.updateCompany(data.id, data);
                 }
+            } else if (leadType === 'person') {
+                if (action === 'create') {
+                    // Ensure all required fields are present
+                    if (!data.recent_posts) {
+                        data.recent_posts = 'None';
+                    }
+                    result = await this.createContact(data);
+                }
             }
             // Add similar blocks for other lead types
             
@@ -296,6 +338,66 @@ class InvestorNetwork {
         }
     }
 
+    viewLeadDetails(item) {
+        const modal = document.getElementById('leadDetailsModal');
+        const modalTitle = document.getElementById('leadDetailsTitle');
+        const modalBody = document.getElementById('leadDetailsBody');
+        
+        if (!modal || !modalTitle || !modalBody) return;
+        
+        // Set title based on item type
+        let title = '';
+        if ('company_name' in item) {
+            title = item.company_name;
+        } else if ('name' in item) {
+            title = item.name;
+        } else if ('event_name' in item) {
+            title = item.event_name;
+        } else {
+            title = 'Lead Details';
+        }
+        
+        modalTitle.textContent = title;
+        
+        // Clear existing content
+        modalBody.innerHTML = '';
+        
+        // Determine item type and format details accordingly
+        if ('company_name' in item) {
+            // Format company details
+            modalBody.innerHTML = `
+                <p><strong>Industry:</strong> ${item.industry || 'N/A'}</p>
+                <p><strong>Address:</strong> ${item.physical_address || 'N/A'}</p>
+                <p><strong>Website:</strong> ${item.website ? `<a href="${item.website}" target="_blank">${item.website}</a>` : 'N/A'}</p>
+                <p><strong>LinkedIn:</strong> ${item.linkedin_page ? `<a href="${item.linkedin_page}" target="_blank">View Profile</a>` : 'N/A'}</p>
+            `;
+        } else if ('name' in item) {
+            // Format person details
+            modalBody.innerHTML = `
+                <p><strong>Position:</strong> ${item.position || 'N/A'}</p>
+                <p><strong>Company:</strong> ${item.company || 'N/A'}</p>
+                <p><strong>Email:</strong> ${item.email ? `<a href="mailto:${item.email}">${item.email}</a>` : 'N/A'}</p>
+                <p><strong>LinkedIn:</strong> ${item.linkedin_profile ? `<a href="${item.linkedin_profile}" target="_blank">View Profile</a>` : 'N/A'}</p>
+                <p><strong>Recent Posts:</strong> ${item.recent_posts || 'None'}</p>
+            `;
+        } else if ('event_name' in item || 'name' in item && 'date' in item) {
+            // Format event details
+            const eventDate = item.date ? new Date(item.date).toLocaleDateString() : 'N/A';
+            modalBody.innerHTML = `
+                <p><strong>Date:</strong> ${eventDate}</p>
+                <p><strong>Location:</strong> ${item.location || 'N/A'}</p>
+                <p><strong>Type:</strong> ${item.type || 'N/A'}</p>
+                <p><strong>Description:</strong> ${item.description || 'N/A'}</p>
+            `;
+        } else {
+            // Generic format for unknown item types
+            modalBody.innerHTML = '<p>No details available for this item.</p>';
+        }
+        
+        // Show the modal
+        $(modal).modal('show');
+    }
+
     getFieldsForLeadType(leadType) {
         switch (leadType) {
             case 'company':
@@ -305,6 +407,15 @@ class InvestorNetwork {
                     { name: 'physical_address', label: 'Physical Address', type: 'text', required: true },
                     { name: 'website', label: 'Website', type: 'url', required: true },
                     { name: 'linkedin_page', label: 'LinkedIn Page', type: 'url', required: true }
+                ];
+            case 'person':
+                return [
+                    { name: 'name', label: 'Name', type: 'text', required: true },
+                    { name: 'position', label: 'Position', type: 'text', required: true },
+                    { name: 'email', label: 'Email', type: 'email', required: true },
+                    { name: 'linkedin_profile', label: 'LinkedIn Profile', type: 'url', required: true },
+                    { name: 'company', label: 'Company', type: 'text', required: true },
+                    { name: 'recent_posts', label: 'Recent Posts', type: 'text', required: false }
                 ];
             // Add cases for other lead types
             default:
@@ -544,7 +655,7 @@ class InvestorNetwork {
     
     prepareNetworkData() {
         const nodes = [
-            ...this.mockData.contacts.map(c => ({ 
+            ...(this.contacts || []).map(c => ({ 
                 ...c, 
                 id: `person-${c.id}`, 
                 type: 'person',
@@ -566,15 +677,22 @@ class InvestorNetwork {
         const links = [];
         
         // Link contacts to companies
-        this.mockData.contacts.forEach(contact => {
-            if (contact.company) {
-                links.push({
-                    source: `person-${contact.id}`,
-                    target: `company-${contact.company}`,
-                    type: 'works_at'
-                });
-            }
-        });
+        if (this.contacts) {
+            this.contacts.forEach(contact => {
+                const companyName = contact.company;
+                if (companyName) {
+                    // Find company by name
+                    const company = this.companies?.find(c => c.company_name === companyName);
+                    if (company) {
+                        links.push({
+                            source: `person-${contact.id}`,
+                            target: `company-${company.id}`,
+                            type: 'works_at'
+                        });
+                    }
+                }
+            });
+        }
         
         return { nodes, links };
     }
@@ -645,7 +763,7 @@ class InvestorNetwork {
         // Show node details
         this.showNodeDetails(node);
     }
-    
+
     drag(simulation) {
         function dragstarted(event) {
             if (!event.active) simulation.alphaTarget(0.3).restart();

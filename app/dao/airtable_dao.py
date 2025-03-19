@@ -27,11 +27,28 @@ class AirtableDAO(Generic[T]):
 
     def _from_airtable_record(self, record: dict) -> T:
         fields = record['fields']
-        # Convert comma-separated strings back to lists for list fields
+        
+        # Add missing fields with default values based on model field types
         for field_name, field in self.model_class.model_fields.items():
+            # Skip id field as it's handled separately
+            if field_name == 'id':
+                continue
+                
+            # Handle list fields (convert comma-separated strings to lists)
             if field_name in fields and isinstance(field.annotation, type(List)):
                 if isinstance(fields[field_name], str):
                     fields[field_name] = [item.strip() for item in fields[field_name].split(",") if item.strip()]
+            
+            # Ensure all required fields have values
+            if field_name not in fields:
+                # Default empty list for List types
+                if isinstance(field.annotation, type(List)):
+                    fields[field_name] = []
+                # Default empty string for str types
+                elif field.annotation == str:
+                    fields[field_name] = ""
+                # Other types would need specific defaults as needed
+        
         return self.model_class(id=record['id'], **fields)
 
     async def create(self, item: T) -> T:
@@ -47,7 +64,16 @@ class AirtableDAO(Generic[T]):
 
     async def list_all(self, formula: str = None) -> List[T]:
         records = self.table.all(formula=formula)
-        return [self._from_airtable_record(record) for record in records]
+        result = []
+        for record in records:
+            try:
+                # Try to convert the record, skip if it fails
+                item = self._from_airtable_record(record)
+                result.append(item)
+            except Exception as e:
+                print(f"Error converting record {record.get('id', 'unknown')}: {str(e)}")
+                continue
+        return result
 
     async def update(self, id: str, item: T) -> Optional[T]:
         try:
