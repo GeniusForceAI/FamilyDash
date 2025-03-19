@@ -46,11 +46,6 @@
                 </div>
             </header>
 
-            <div class="mode-toggle">
-                <button id="viewMode" class="active">View Network</button>
-                <button id="manageMode">Manage Leads</button>
-            </div>
-
             <div class="stats-container">
                 <div class="stat-card">
                     <i class="fas fa-user-tie"></i>
@@ -72,6 +67,11 @@
                     <h3 id="fundedCompanies">-</h3>
                     <p>Funded Companies</p>
                 </div>
+            </div>
+
+            <div class="mode-toggle">
+                <button id="viewMode" class="active">View Network</button>
+                <button id="manageMode">Manage Leads</button>
             </div>
 
             <div id="networkView" class="network-view active">
@@ -101,6 +101,46 @@
                     <div class="network-container" id="networkContainer"></div>
                     <div id="nodeDetails" class="node-details">
                         <div id="nodeContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leads Overview -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card leads-overview">
+                        <div class="card-header">
+                            <h3>People</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="peopleList" class="leads-list">
+                                <div class="loader">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card leads-overview">
+                        <div class="card-header">
+                            <h3>Companies</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="companiesList" class="leads-list">
+                                <div class="loader">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card leads-overview">
+                        <div class="card-header">
+                            <h3>Events</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="eventsList" class="leads-list">
+                                <div class="loader">Loading...</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -146,45 +186,7 @@
                     <!-- Form will be inserted here by JS -->
                 </div>
 
-                <!-- Leads Overview -->
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="card leads-overview">
-                            <div class="card-header">
-                                <h3>People</h3>
-                            </div>
-                            <div class="card-body">
-                                <div id="peopleList" class="leads-list">
-                                    <div class="loader">Loading...</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card leads-overview">
-                            <div class="card-header">
-                                <h3>Companies</h3>
-                            </div>
-                            <div class="card-body">
-                                <div id="companiesList" class="leads-list">
-                                    <div class="loader">Loading...</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card leads-overview">
-                            <div class="card-header">
-                                <h3>Events</h3>
-                            </div>
-                            <div class="card-body">
-                                <div id="eventsList" class="leads-list">
-                                    <div class="loader">Loading...</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </main>
     </div>
